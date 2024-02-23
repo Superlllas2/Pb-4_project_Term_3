@@ -8,6 +8,10 @@ namespace GXPEngine
         private int score;
         private int playerId;
         private GUI gui;
+        private Eggs eggs;
+        private int orderPlayer1;
+        private int orderPlayer2;
+        private bool wasDownKeyPressed = false;
 
         private static readonly int[,] playerControls = new int[2, 5]
         {
@@ -21,11 +25,14 @@ namespace GXPEngine
             return score;
         }
         
-        public Player(int playerId, GUI gui) : base(1300, 800)
+        public Player(int playerId, GUI gui, Eggs eggs) : base(1300, 800)
         {
+            this.eggs = eggs;
             this.gui = gui;
             this.playerId = playerId;
             score = 0;
+            orderPlayer1 = 0;
+            orderPlayer2 = 1;
         }
 
         void Update()
@@ -41,19 +48,28 @@ namespace GXPEngine
             var leftKey = playerControls[playerId, 2];
             var rightKey = playerControls[playerId, 3];
             
+            bool isDownKeyPressed = Input.GetKey(downKey);
+            
             if (Input.GetKey(leftKey))
             {
-                gui.changeChoice(playerId, leftKey);
+                gui.ChangeChoice(playerId, leftKey);
             }
             if (Input.GetKey(rightKey))
             {
-                gui.changeChoice(playerId, rightKey);
+                gui.ChangeChoice(playerId, rightKey);
             }
 
             if (Input.GetKey(downKey))
             {
-                gui.decisionMade(playerId);
+                if (isDownKeyPressed && !wasDownKeyPressed)
+                {
+                    gui.DecisionMade(playerId);
+                    gui.ShowResult(playerId, eggs.GetResult(orderPlayer1));
+                    orderPlayer1 += 2;
+                    orderPlayer2 += 2;
+                }
             }
+            wasDownKeyPressed = isDownKeyPressed;
         }
     }
 }

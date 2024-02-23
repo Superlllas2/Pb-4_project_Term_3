@@ -1,6 +1,3 @@
-using System;
-using System.Runtime.InteropServices;
-
 namespace GXPEngine
 {
     public class GUI : Canvas
@@ -8,6 +5,12 @@ namespace GXPEngine
         private Sprite eggRack;
         private Sprite playerChoice1;
         private Sprite playerChoice2;
+        private Sprite resultGoodSprite1;
+        private Sprite resultGoodSprite2;
+        private Sprite resultBadSprite1;
+        private Sprite resultBadSprite2;
+        private Player player;
+        
         public GUI() : base(1300, 800)
         {
             eggRack = new Canvas("eggRack.png", false);
@@ -23,9 +26,32 @@ namespace GXPEngine
             AddChild(playerChoice2);
             playerChoice1.SetXY(400, 300);
             playerChoice2.SetXY(840, 400);
-        }
 
-        public void changeChoice(int playerId, int key)
+            resultGoodSprite1 = new Sprite("successEgg.png", true, false);
+            resultGoodSprite1.scale = 0.14f;
+            resultGoodSprite2 = new Sprite("successEgg.png", true, false);
+            resultGoodSprite1.scale = 0.14f;
+            resultGoodSprite2.scale = 0.14f;
+            resultGoodSprite1.SetXY(350, 530);
+            resultGoodSprite2.SetXY(810, 530);
+            resultGoodSprite1.visible = false;
+            resultGoodSprite2.visible = false;
+            resultBadSprite1 = new Sprite("failureEgg.png", true, false);
+            resultBadSprite1.scale = 0.1f;
+            resultBadSprite2 = new Sprite("failureEgg.png", true, false);
+            resultBadSprite1.scale = 0.1f;
+            resultBadSprite2.scale = 0.1f;
+            resultBadSprite1.SetXY(380, 500);
+            resultBadSprite2.SetXY(840, 500);
+            resultBadSprite1.visible = false;
+            resultBadSprite2.visible = false;
+            AddChild(resultGoodSprite1);
+            AddChild(resultGoodSprite2);
+            AddChild(resultBadSprite1);
+            AddChild(resultBadSprite2);
+        }
+        
+        public void ChangeChoice(int playerId, int key)
         {
             int x = (key == Key.D || key == Key.RIGHT) ? 840 : 400;
 
@@ -36,14 +62,44 @@ namespace GXPEngine
             }
         }
 
-        public void decisionMade(int playerId)
+        // Makes decision Sprite disappear when clicked down button 
+        public void DecisionMade(int playerId)
         {
             if (playerId == 0)
             {
                 playerChoice1.visible = false;
+                
             } else if (playerId == 1)
             {
                 playerChoice2.visible = false;
+            }
+        }
+
+        // Makes result sprites visible when choice is made
+        public void ShowResult(int playerId, int result)
+        {
+            if (playerId == 0)
+            {
+                if (result == 0)
+                {
+                    resultGoodSprite1.visible = true;
+                    
+                }
+                else
+                {
+                    resultBadSprite1.visible = true;
+                }
+            }
+            else
+            {
+                if (result == 0)
+                {
+                    resultGoodSprite2.visible = true;
+                }
+                else
+                {
+                    resultBadSprite2.visible = true;
+                }
             }
         }
     }
