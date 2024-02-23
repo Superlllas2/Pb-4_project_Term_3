@@ -35,6 +35,8 @@ public class MyGame : Game
 
 		player1 = new Player(0, gui, eggs);
 		player2 = new Player(1, gui, eggs);
+		gui.SetScoreUpdateCallback(0, player1.UpdateScoreCallback);
+		gui.SetScoreUpdateCallback(1, player2.UpdateScoreCallback);
 		AddChild(player1);
 		AddChild(player2);
 

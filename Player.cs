@@ -19,10 +19,21 @@ namespace GXPEngine
             { Key.UP, Key.DOWN, Key.LEFT, Key.RIGHT, Key.ENTER } // Player 2: Arrow keys
         };
 
+        public Action<int> UpdateScoreCallback;
 
         public int GetScore()
         {
             return score;
+        }
+        
+        public void UpdateScore(int result) {
+            if (result == 0) {
+                score++;
+            }
+            else
+            {
+                score--;
+            }
         }
         
         public Player(int playerId, GUI gui, Eggs eggs) : base(1300, 800)
@@ -33,7 +44,11 @@ namespace GXPEngine
             score = 0;
             orderPlayer1 = 0;
             orderPlayer2 = 1;
+            
+            UpdateScoreCallback = (result) => UpdateScore(result);
         }
+        
+        
 
         void Update()
         {

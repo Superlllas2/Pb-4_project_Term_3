@@ -1,3 +1,5 @@
+using System;
+
 namespace GXPEngine
 {
     public class GUI : Canvas
@@ -10,6 +12,12 @@ namespace GXPEngine
         private Sprite resultBadSprite1;
         private Sprite resultBadSprite2;
         private Player player;
+
+        private float duration = 2.5f;
+        private float elapsedTime;
+        
+        private Action<int> player1ScoreUpdateCallback;
+        private Action<int> player2ScoreUpdateCallback;
         
         public GUI() : base(1300, 800)
         {
@@ -51,6 +59,14 @@ namespace GXPEngine
             AddChild(resultBadSprite2);
         }
         
+        public void SetScoreUpdateCallback(int playerId, Action<int> callback) {
+            if (playerId == 0) {
+                player1ScoreUpdateCallback = callback;
+            } else if (playerId == 1) {
+                player2ScoreUpdateCallback = callback;
+            }
+        }
+        
         public void ChangeChoice(int playerId, int key)
         {
             int x = (key == Key.D || key == Key.RIGHT) ? 840 : 400;
@@ -68,7 +84,6 @@ namespace GXPEngine
             if (playerId == 0)
             {
                 playerChoice1.visible = false;
-                
             } else if (playerId == 1)
             {
                 playerChoice2.visible = false;
@@ -83,11 +98,16 @@ namespace GXPEngine
                 if (result == 0)
                 {
                     resultGoodSprite1.visible = true;
-                    
+                    Console.WriteLine("GUI ShowResult; player = 0; result = 0");
+
+                    player1ScoreUpdateCallback?.Invoke(result);
                 }
                 else
                 {
                     resultBadSprite1.visible = true;
+                    Console.WriteLine("GUI ShowResult; player = 0; result = 1");
+
+                    player1ScoreUpdateCallback?.Invoke(result);
                 }
             }
             else
@@ -95,10 +115,16 @@ namespace GXPEngine
                 if (result == 0)
                 {
                     resultGoodSprite2.visible = true;
+                    Console.WriteLine("GUI ShowResult; player = 1; result = 0");
+
+                    player2ScoreUpdateCallback?.Invoke(result);
                 }
                 else
                 {
                     resultBadSprite2.visible = true;
+                    Console.WriteLine("GUI ShowResult; player = 1; result = 1");
+
+                    player2ScoreUpdateCallback?.Invoke(result);
                 }
             }
         }
