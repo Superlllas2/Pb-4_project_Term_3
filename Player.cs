@@ -11,7 +11,8 @@ namespace GXPEngine
         private Eggs eggs;
         private int orderPlayer1;
         private int orderPlayer2;
-        private bool wasDownKeyPressed = false;
+        private bool wasDownKeyPressed;
+        
 
         private static readonly int[,] playerControls = new int[2, 5]
         {
@@ -28,11 +29,11 @@ namespace GXPEngine
         
         public void UpdateScore(int result) {
             if (result == 0) {
-                score++;
+                score =+ 10;
             }
             else
             {
-                score--;
+                score =- 10;
             }
         }
         
@@ -74,6 +75,7 @@ namespace GXPEngine
                 gui.ChangeChoice(playerId, rightKey);
             }
 
+            
             if (Input.GetKey(downKey))
             {
                 if (isDownKeyPressed && !wasDownKeyPressed)

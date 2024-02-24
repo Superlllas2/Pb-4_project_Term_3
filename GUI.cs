@@ -13,8 +13,9 @@ namespace GXPEngine
         private Sprite resultBadSprite2;
         private Player player;
 
-        private float duration = 2.5f;
-        private float elapsedTime;
+        private float resultSpriteVisibilityDuration = 4f;
+        private float elapsedTimeSinceResultShown = 0f;
+        private bool resultSpriteTimerActive = false;
         
         private Action<int> player1ScoreUpdateCallback;
         private Action<int> player2ScoreUpdateCallback;
@@ -77,6 +78,11 @@ namespace GXPEngine
                 playerChoice2.SetXY(x, 400);
             }
         }
+        
+        // public bool isResultShown()
+        // { 
+        //     result
+        // }
 
         // Makes decision Sprite disappear when clicked down button 
         public void DecisionMade(int playerId)
@@ -93,6 +99,8 @@ namespace GXPEngine
         // Makes result sprites visible when choice is made
         public void ShowResult(int playerId, int result)
         {
+            elapsedTimeSinceResultShown = 0f;
+            resultSpriteTimerActive = true;
             if (playerId == 0)
             {
                 if (result == 0)
@@ -125,6 +133,30 @@ namespace GXPEngine
                     Console.WriteLine("GUI ShowResult; player = 1; result = 1");
 
                     player2ScoreUpdateCallback?.Invoke(result);
+                }
+            }
+        }
+        
+        void Update()
+        {
+            if (resultSpriteTimerActive)
+            {
+                elapsedTimeSinceResultShown += Time.deltaTime;
+                if (elapsedTimeSinceResultShown/1000 >= resultSpriteVisibilityDuration)
+                {
+                    Console.WriteLine("We get here");
+                    // Hide the result sprites
+                    resultGoodSprite1.visible = false;
+                    resultBadSprite1.visible = false;
+                    resultGoodSprite2.visible = false;
+                    resultBadSprite2.visible = false;
+
+                    // Stop the timer
+                    resultSpriteTimerActive = false;
+                    
+                    // Show choice sprites
+                    playerChoice1.visible = true;
+                    playerChoice2.visible = true;
                 }
             }
         }
