@@ -5,11 +5,9 @@ using System.Drawing.Drawing2D; // System.Drawing contains drawing tools such as
 
 public class MyGame : Game
 {
-	//--LEGACY--
-	// private LegacyPlot _legacyPlot;
-	// private LegacyPlayer _legacyPlayer;
-	//----------
-
+	private Canvas test;
+	private Canvas test2;
+	
 	private Player player1;
 	private Player player2;
 	private EasyDraw leftSide;
@@ -18,23 +16,16 @@ public class MyGame : Game
 	private GUI gui;
 	private Eggs eggs;
 
-	private MyGame() : base(1300, 800, false)     // Create a window that's 800x600 and NOT fullscreen
+	private MyGame() : base(1366, 768, false, pPixelArt:true) 
 	{
-		// -- TO SEE WHAT ARE THE EGGS --
-		// foreach (int i in eggs)
-		// {
-		// 	Console.WriteLine(i);	
-		// }
-		// -------------------------------
-
 		eggs = new Eggs();
 		// AddChild(eggs);
 		
 		gui = new GUI();
 		AddChild(gui);
 
-		player1 = new Player(0, gui, eggs);
-		player2 = new Player(1, gui, eggs);
+		player1 = new Player(0, gui, eggs, 0,0);
+		player2 = new Player(1, gui, eggs, 1,1);
 		gui.SetScoreUpdateCallback(0, player1.UpdateScoreCallback);
 		gui.SetScoreUpdateCallback(1, player2.UpdateScoreCallback);
 		AddChild(player1);
@@ -42,7 +33,29 @@ public class MyGame : Game
 
 		hud = new HUD(player1, player2, eggs.GetNumOnes());
 		AddChild(hud);
+		
+		// --TEST PURPOSES--
+		// test = new Canvas("_DSF5407.jpg", false);
+		// test.scale = 2f;
+		// AddChild(test);
+		// test2 = new Canvas("test3.png", false);
+		// test2.scale = 16f;
+		// AddChild(test2);
+		// -----------------
+
+		// -- TO SEE WHAT ARE THE EGGS --
+		// foreach (int i in eggs)
+		// {
+		// 	Console.WriteLine(i);	
+		// }
+		// -------------------------------
 	}
+
+	// void Update()
+	// {
+	// 	Console.WriteLine(player1.GetScore());
+	// 	Console.WriteLine(player2.GetScore());
+	// }
 	
 	static void Main()                          // Main() is the first method that's called when the program is run
 	{

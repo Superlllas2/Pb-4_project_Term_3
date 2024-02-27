@@ -20,7 +20,7 @@ namespace GXPEngine
 
         private int numOnes;
         
-        public HUD(Player player1, Player player2, int numOnes) : base(1300, 800)
+        public HUD(Player player1, Player player2, int numOnes) : base(1366, 768)
         {
             this.numOnes = numOnes;
             this.player1 = player1;
@@ -40,7 +40,7 @@ namespace GXPEngine
             graphics.DrawString(textFailureEggs + numOnes, font, textColor, (game.width - GetTextSize(textFailureEggs + numOnes, "width")) / 2, 10);
             graphics.DrawString(textTimer + (totalTime - Time.time/1000), font, textColor, 0, game.height - GetTextSize(textTimer, "height"));
             graphics.DrawString(player1.GetScore().ToString(), font, textColor, 0, 0);
-            graphics.DrawString(player2.GetScore().ToString(), font, textColor, game.width - GetTextSize(player2.GetScore().ToString(), "width"), 0);
+            graphics.DrawString(player2.GetScore().ToString(), font, textColor, game.width - GetTextSize(player2.GetScore().ToString(), "width") - 60, 0);
         }
     }
 }

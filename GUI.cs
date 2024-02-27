@@ -12,15 +12,15 @@ namespace GXPEngine
         private Sprite resultBadSprite1;
         private Sprite resultBadSprite2;
         private Player player;
-
+        
         private float resultSpriteVisibilityDuration = 4f;
-        private float elapsedTimeSinceResultShown = 0f;
-        private bool resultSpriteTimerActive = false;
+        private float elapsedTimeSinceResultShown;
+        private bool resultSpriteTimerActive;
         
         private Action<int> player1ScoreUpdateCallback;
         private Action<int> player2ScoreUpdateCallback;
         
-        public GUI() : base(1300, 800)
+        public GUI() : base(1366, 768)
         {
             eggRack = new Canvas("eggRack.png", false);
             AddChild(eggRack);
@@ -78,11 +78,6 @@ namespace GXPEngine
                 playerChoice2.SetXY(x, 400);
             }
         }
-        
-        // public bool isResultShown()
-        // { 
-        //     result
-        // }
 
         // Makes decision Sprite disappear when clicked down button 
         public void DecisionMade(int playerId)
@@ -106,15 +101,11 @@ namespace GXPEngine
                 if (result == 0)
                 {
                     resultGoodSprite1.visible = true;
-                    Console.WriteLine("GUI ShowResult; player = 0; result = 0");
-
                     player1ScoreUpdateCallback?.Invoke(result);
                 }
                 else
                 {
                     resultBadSprite1.visible = true;
-                    Console.WriteLine("GUI ShowResult; player = 0; result = 1");
-
                     player1ScoreUpdateCallback?.Invoke(result);
                 }
             }
@@ -123,15 +114,11 @@ namespace GXPEngine
                 if (result == 0)
                 {
                     resultGoodSprite2.visible = true;
-                    Console.WriteLine("GUI ShowResult; player = 1; result = 0");
-
                     player2ScoreUpdateCallback?.Invoke(result);
                 }
                 else
                 {
                     resultBadSprite2.visible = true;
-                    Console.WriteLine("GUI ShowResult; player = 1; result = 1");
-
                     player2ScoreUpdateCallback?.Invoke(result);
                 }
             }
@@ -144,7 +131,6 @@ namespace GXPEngine
                 elapsedTimeSinceResultShown += Time.deltaTime;
                 if (elapsedTimeSinceResultShown/1000 >= resultSpriteVisibilityDuration)
                 {
-                    Console.WriteLine("We get here");
                     // Hide the result sprites
                     resultGoodSprite1.visible = false;
                     resultBadSprite1.visible = false;
