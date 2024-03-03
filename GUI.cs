@@ -11,21 +11,42 @@ namespace GXPEngine
         private Sprite resultGoodSprite2;
         private Sprite resultBadSprite1;
         private Sprite resultBadSprite2;
+        
+        public Sprite leftPan;
+        public Sprite rightPan;
+        
         private Player player;
         
         private float resultSpriteVisibilityDuration = 4f;
         private float elapsedTimeSinceResultShown;
         private bool resultSpriteTimerActive;
         
+        // public Sprite[] eggArray = new Sprite[13];
+        public int currentEgg;
+        
         private Action<int> player1ScoreUpdateCallback;
         private Action<int> player2ScoreUpdateCallback;
         
         public GUI() : base(1366, 768)
         {
-            eggRack = new Canvas("eggRack.png", false);
-            AddChild(eggRack);
-            eggRack.SetOrigin(eggRack.width/2, 0);
-            eggRack.SetXY(650, 60);
+            // for (int i = 0; i < 13; i++) {
+            //     string imagePath = $"Eggbox/EggBox{i}.png";
+            //     eggArray[i] = new Sprite(imagePath);
+            //     eggArray[i].scale = 2f;
+            //     eggArray[i].visible = false;
+            //     AddChild(eggArray[i]);
+            // }
+            //
+            // eggArray[0].visible = true;
+            
+            
+            leftPan = new Canvas("panLeftStatic.png", false);
+            leftPan.scale = 2f;
+            AddChild(leftPan);
+
+            rightPan = new Canvas("panRightStatic.png", false);
+            rightPan.scale = 2f;
+            AddChild(rightPan);
 
             playerChoice1 = new Canvas("circle.png", false);
             playerChoice1.scale = 0.05f;
@@ -58,6 +79,11 @@ namespace GXPEngine
             AddChild(resultGoodSprite2);
             AddChild(resultBadSprite1);
             AddChild(resultBadSprite2);
+        }
+
+        public void ChangeEggBox()
+        {
+            
         }
         
         public void SetScoreUpdateCallback(int playerId, Action<int> callback) {
@@ -92,11 +118,11 @@ namespace GXPEngine
         }
 
         // Makes result sprites visible when choice is made
-        public void ShowResult(int playerId, int result)
+        public void ShowResult(int choice, int result)
         {
             elapsedTimeSinceResultShown = 0f;
             resultSpriteTimerActive = true;
-            if (playerId == 0)
+            if (choice == 0)
             {
                 if (result == 0)
                 {

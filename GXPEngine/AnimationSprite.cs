@@ -21,6 +21,13 @@ namespace GXPEngine
 
 		private float _animationFrameCounter = 0;
 		
+		// Ilia Nevrov code:
+		private int cols;
+		private int totalFrames; // Total frames in the animation
+		private float frameDuration = 100; // Duration for each frame in milliseconds
+		private bool isAnimating = false; // Is the animation currently playing
+		
+		
 		//------------------------------------------------------------------------------------------------------------------------
 		//														AnimSprite()
 		//------------------------------------------------------------------------------------------------------------------------
@@ -51,6 +58,7 @@ namespace GXPEngine
 		/// </param> 
 		public AnimationSprite (string filename, int cols, int rows, int frames=-1, bool keepInCache=false, bool addCollider=true) : base(filename,keepInCache,addCollider)
 		{
+			this.cols = cols;
 			name = filename;
 			initializeAnimFrames(cols, rows, frames);
 		}
@@ -243,7 +251,7 @@ namespace GXPEngine
 		}
 
 		//------------------------------------------------------------------------------------------------------------------------
-		//														Animate()
+		//			Ilia Nevrov changed a bit of	       	Animate()
 		//------------------------------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// If the current animation frame has been shown for [_animationDelay] game frames, this
@@ -259,6 +267,8 @@ namespace GXPEngine
 				_animationFrameCounter-=_animationDelay;
 			}
 		}
+
+		
 
 		//------------------------------------------------------------------------------------------------------------------------
 		//														AnimateFixed()

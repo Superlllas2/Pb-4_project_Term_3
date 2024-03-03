@@ -7,6 +7,12 @@ public class MyGame : Game
 {
 	private Canvas test;
 	private Canvas test2;
+	private Canvas test3;
+	private Canvas test4;
+
+	private Canvas background;
+
+	private AnimationSprite fire;
 	
 	private Player player1;
 	private Player player2;
@@ -16,8 +22,16 @@ public class MyGame : Game
 	private GUI gui;
 	private Eggs eggs;
 
-	private MyGame() : base(1366, 768, false, pPixelArt:true) 
+	private MyGame() : base(1366, 768, false, pPixelArt:true)
 	{
+		background = new Canvas("Background.png", false);
+		background.scale = 2f;
+		AddChild(background);
+
+		fire = new AnimationSprite("StaticAnimations/fire.png", 8, 1, -1, true, false);
+		fire.scale = 2f;
+		AddChild(fire);
+		
 		eggs = new Eggs();
 		// AddChild(eggs);
 		
@@ -26,8 +40,8 @@ public class MyGame : Game
 
 		player1 = new Player(0, gui, eggs, 0,0);
 		player2 = new Player(1, gui, eggs, 1,1);
-		gui.SetScoreUpdateCallback(0, player1.UpdateScoreCallback);
-		gui.SetScoreUpdateCallback(1, player2.UpdateScoreCallback);
+		gui.SetScoreUpdateCallback(player1.choice, player1.UpdateScoreCallback);
+		gui.SetScoreUpdateCallback(player2.choice, player2.UpdateScoreCallback);
 		AddChild(player1);
 		AddChild(player2);
 
@@ -35,12 +49,21 @@ public class MyGame : Game
 		AddChild(hud);
 		
 		// --TEST PURPOSES--
-		// test = new Canvas("_DSF5407.jpg", false);
+		// test4 = new Canvas("Eggbox/eggbox1.png", false);
+		// test4.scale = 2f;
+		// test4.SetXY(0, 400);
+		// AddChild(test4);
+		// test = new Canvas("Test_middle.png", false);
 		// test.scale = 2f;
+		// test.SetXY(200, 400);
 		// AddChild(test);
-		// test2 = new Canvas("test3.png", false);
-		// test2.scale = 16f;
+		// test2 = new Canvas("Test_high.png", false);
+		// test2.SetXY(400, 400);
 		// AddChild(test2);
+		// test2.scale = 2f;
+		// test3 = new Canvas("test3.png", false);
+		// AddChild(test3);
+		
 		// -----------------
 
 		// -- TO SEE WHAT ARE THE EGGS --
@@ -51,11 +74,11 @@ public class MyGame : Game
 		// -------------------------------
 	}
 
-	// void Update()
-	// {
-	// 	Console.WriteLine(player1.GetScore());
-	// 	Console.WriteLine(player2.GetScore());
-	// }
+	void Update()
+	{
+		fire.Animate(10 * Time.deltaTime / 1000f);
+		
+	}
 	
 	static void Main()                          // Main() is the first method that's called when the program is run
 	{

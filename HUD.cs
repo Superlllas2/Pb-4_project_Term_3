@@ -37,10 +37,10 @@ namespace GXPEngine
         void Update()
         {
             graphics.Clear(Color.Empty);
-            graphics.DrawString(textFailureEggs + numOnes, font, textColor, (game.width - GetTextSize(textFailureEggs + numOnes, "width")) / 2, 10);
+            graphics.DrawString(numOnes.ToString(), font, textColor, (game.width - GetTextSize(numOnes.ToString(), "width")) / 2, 100);
             graphics.DrawString(textTimer + (totalTime - Time.time/1000), font, textColor, 0, game.height - GetTextSize(textTimer, "height"));
             graphics.DrawString(player1.GetScore().ToString(), font, textColor, 0, 0);
-            graphics.DrawString(player2.GetScore().ToString(), font, textColor, game.width - GetTextSize(player2.GetScore().ToString(), "width") - 60, 0);
+            graphics.DrawString(player2.GetScore().ToString(), font, textColor, game.width - GetTextSize(player2.GetScore().ToString(), "width") , 0);
         }
     }
 }

@@ -37,8 +37,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnimationManager.cs" />
     <Compile Include="Eggs.cs" />
-    <Compile Include="GamePlay.cs" />
+    <Compile Include="Gyroscope.cs" />
     <Compile Include="GUI.cs" />
     <Compile Include="GXPEngine\AddOns\Gizmos.cs" />
     <Compile Include="GXPEngine\AddOns\SpriteBatch.cs" />
