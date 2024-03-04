@@ -21,7 +21,7 @@ namespace GXPEngine
         private float elapsedTimeSinceResultShown;
         private bool resultSpriteTimerActive;
         
-        // public Sprite[] eggArray = new Sprite[13];
+        public Sprite[] eggArray = new Sprite[13];
         public int currentEgg;
         
         private Action<int> player1ScoreUpdateCallback;
@@ -29,15 +29,15 @@ namespace GXPEngine
         
         public GUI() : base(1366, 768)
         {
-            // for (int i = 0; i < 13; i++) {
-            //     string imagePath = $"Eggbox/EggBox{i}.png";
-            //     eggArray[i] = new Sprite(imagePath);
-            //     eggArray[i].scale = 2f;
-            //     eggArray[i].visible = false;
-            //     AddChild(eggArray[i]);
-            // }
-            //
-            // eggArray[0].visible = true;
+            for (int i = 0; i < 13; i++) {
+                string imagePath = $"Eggbox/EggBox{i}.png";
+                eggArray[i] = new Sprite(imagePath);
+                eggArray[i].scale = 2f;
+                eggArray[i].visible = false;
+                AddChild(eggArray[i]);
+            }
+            
+            eggArray[0].visible = true;
             
             
             leftPan = new Canvas("panLeftStatic.png", false);

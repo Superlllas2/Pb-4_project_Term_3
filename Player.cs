@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace GXPEngine
 {
@@ -19,16 +20,16 @@ namespace GXPEngine
         private static bool player2KeyDown = false;
 
         // Animations
+        private bool globalAnimationState = false;
         private AnimationSprite rightPanAgree;
         private AnimationSprite rightPanDeny;
-        private bool isAnimating = false;
         private int animationFrame = 0;
         private float animationTimer = 0f;
         private Dictionary<string, AnimationSprite> animations = new Dictionary<string, AnimationSprite>();
         private Dictionary<string, bool> animationStates = new Dictionary<string, bool>();
         private Dictionary<string, float> animationTimers = new Dictionary<string, float>();
         private Dictionary<string, List<GameObject>> animationObjectMap = new Dictionary<string, List<GameObject>>();
-        private const int ANIMATION_FRAME_DURATION = 10; // Duration for all animations
+        private const int ANIMATION_FRAME_DURATION = 14; // Duration for all animations
 
         // Arduino controller
         private Gyroscope gyroscope;
@@ -42,8 +43,7 @@ namespace GXPEngine
         private float coolDownTime = 4f;
         private float elapsedTime;
         private bool timerActive;
-
-
+        
         // For the choice, 0 = left, 1 = right
         public int choice;
 
@@ -55,37 +55,14 @@ namespace GXPEngine
 
         public Action<int> UpdateScoreCallback;
 
-        private bool BothPlayersDecided()
-        {
-            return player1KeyDown && player2KeyDown;
-        }
-
-        private void UpdateScore(int result)
-        {
-            if (result == 0)
-            {
-                score += 10;
-                Console.WriteLine($"score+10 = {score}, playerID: " + playerId.ToString());
-            }
-            else
-            {
-                score -= 10;
-                Console.WriteLine($"score-10 = {score}, playerID: " + playerId.ToString());
-            }
-        }
-
-        public int GetScore()
-        {
-            return score;
-        }
-
-        public Player(int playerId, GUI gui, Eggs eggs, int orderPlayer, int choice)
+        public Player(int playerId, GUI gui, Eggs eggs, int orderPlayer, int choice, string port)
         {
             this.eggs = eggs;
             this.gui = gui;
             this.playerId = playerId;
             this.orderPlayer = orderPlayer;
             this.choice = choice;
+            score = 0;
 
             rightPanAgree = new AnimationSprite("DynamicAnimations/rightPanAgree.png", 7, 1, -1, false, false);
             rightPanAgree.scale = 2f;
@@ -100,26 +77,49 @@ namespace GXPEngine
             AddAnimation("Player2Other", rightPanDeny);
             animationObjectMap.Add("Player2Other", new List<GameObject> { gui.rightPan });
             AddChild(rightPanDeny);
-            gyroscope = new Gyroscope("/dev/cu.usbmodem2101", 57600);
 
-            score = 0;
+            
+            // Handle exception of not connected controller
+            if (port != null)
+            {
+                try
+                {
+                    gyroscope = new Gyroscope(port, 57600);
+                }
+                catch
+                {
+                    Console.WriteLine($"Exception: player {playerId} controller is not connected or the port is wrong");
+                }
+            }
 
-            // Callback to communicate with GUI
+            // The callback to communicate with GUI
             UpdateScoreCallback = (result) => UpdateScore(result);
+        }
+        
+        private bool BothPlayersDecided()
+        {
+            return player1KeyDown && player2KeyDown;
+        }
+
+        private void UpdateScore(int result)
+        {
+            score += (result == 0) ? 10 : -10;
+        }
+
+        public int GetScore()
+        {
+            return score;
         }
 
         private bool IsGyroLeftActionActive()
         {
-            return gyroscope.roll < -25;
+            return gyroscope?.roll < -25;
         }
 
         void Update()
         {
-            // if (IsGyroLeftActionActive())
-            // {
-            // Console.WriteLine("Detecting movement ");
-            // }
-            gyroscope.SerialPort_DataReceived();
+            gyroscope?.SerialPort_DataReceived();
+            
             Controls();
 
             foreach (var animationName in animations.Keys)
@@ -130,7 +130,7 @@ namespace GXPEngine
 
         void StartAnimation(string animationName)
         {
-            if (!isAnimating && animations.ContainsKey(animationName))
+            if (!animationStates[animationName] && animations.ContainsKey(animationName))
             {
                 // Hide the specific objects related to this animation
                 if (animationObjectMap.ContainsKey(animationName))
@@ -142,7 +142,7 @@ namespace GXPEngine
                 }
 
                 animations[animationName].visible = true;
-                isAnimating = true;
+                animationStates[animationName] = true;
                 animationFrame = 0;
                 animationTimer = 0f;
                 animations[animationName].SetCycle(0, 7); // Assuming you have 7 frames
@@ -152,35 +152,30 @@ namespace GXPEngine
 
         void UpdateAnimation(string animationName)
         {
-            if (!isAnimating)
+            animationTimer += 1;
+            if (animationStates[animationName])
             {
-                return;
-            }
-
-            animationTimer += 1; // Convert milliseconds to seconds
-
-            if (animationTimer >= ANIMATION_FRAME_DURATION)
-            {
-                animationTimer = 0f; // Reset the timer for the next frame
-                animations[animationName].NextFrame(); // Move to the next frame
-                frameCount += 1;
-                if (frameCount == animations[animationName].frameCount)
+                if (animationTimer >= ANIMATION_FRAME_DURATION)
                 {
-                    isAnimating = false;
-
-                    Console.WriteLine("END");
-                    // Assuming animation loops back to 0
-                    // Animation is complete
-                    isAnimating = false;
-                    frameCount = 0;
-                    animations[animationName].visible = false; // Hide the animation sprite
-                    // Show the specific objects related to this animation
-
-                    if (animationObjectMap.ContainsKey(animationName))
+                    animationTimer = 0f; // Reset the timer for the next frame
+                    animations[animationName].NextFrame(); // Move to the next frame
+                    frameCount += 1;
+                    Console.WriteLine($"Updating animation {animationName}: frame {frameCount}");
+                    if (frameCount == animations[animationName].frameCount)
                     {
-                        foreach (var obj in animationObjectMap[animationName])
+                        // Assuming animation loops back to 0
+                        // Animation is complete
+                        frameCount = 0;
+                        animations[animationName].visible = false; // Hide the animation sprite
+                        animationStates[animationName] = false;
+                        
+                        // Show the specific objects related to this animation
+                        if (animationObjectMap.ContainsKey(animationName))
                         {
-                            obj.visible = true;
+                            foreach (var obj in animationObjectMap[animationName])
+                            {
+                                obj.visible = true;
+                            }
                         }
                     }
                 }
@@ -188,14 +183,14 @@ namespace GXPEngine
         }
 
         // Call this method to add a new animation
-        public void AddAnimation(string name, AnimationSprite animation)
+        private void AddAnimation(string name, AnimationSprite animation)
         {
             animations[name] = animation;
             animationStates[name] = false;
             animationTimers[name] = 0f;
         }
 
-        void Controls()
+        private void Controls()
         {
             bool isGyroLeftActive = IsGyroLeftActionActive();
             // Get the control set based on playerId
@@ -208,7 +203,9 @@ namespace GXPEngine
             // Console.WriteLine(!BothPlayersDecided());
             // Console.WriteLine("Left player: " + player1KeyDown);
             // Console.WriteLine("Right player: " + player2KeyDown);
-
+            
+            
+            // ------ Left ------
             if ((isGyroLeftActive && !wasGyroLeftActionActive) || Input.GetKey(leftKey))
             {
                 if (!BothPlayersDecided())
@@ -223,15 +220,31 @@ namespace GXPEngine
                     {
                         StartAnimation("Player2Other");
 
-
+                        // TODO: uncomment to get eggs work
                         // gui.eggArray[gui.currentEgg].visible = false;
                         // gui.eggArray[gui.currentEgg++].visible = true;
                     }
                 }
             }
 
+            // ------ Up ------
+            if (Input.GetKey(upKey))
+            {
+                if (playerId == 0)
+                {
+                }
+                else if (playerId == 1)
+                {
+                    StartAnimation("Player2Himself");
+
+                    // TODO: uncomment to get eggs work
+                    // gui.eggArray[gui.currentEgg].visible = false;
+                    // gui.eggArray[gui.currentEgg++].visible = true;
+                }
+            }
             wasGyroLeftActionActive = isGyroLeftActive;
             // wasLeftKeyPressed = Input.GetKey(leftKey);
+            
             if (Input.GetKey(rightKey))
             {
                 if (!BothPlayersDecided())
@@ -282,7 +295,6 @@ namespace GXPEngine
                             player2KeyDown = true;
                             gui.ShowResult(choice, eggs.GetResult(orderPlayer));
                             orderPlayer += 2;
-                            StartAnimation("Player2Himself");
                         }
 
                         gui.DecisionMade(playerId);
@@ -296,7 +308,6 @@ namespace GXPEngine
                 {
                     timerActive = true;
                     elapsedTime += Time.deltaTime;
-
                     if (elapsedTime >= coolDownTime)
                     {
                         // Reset after cooldown
@@ -307,7 +318,6 @@ namespace GXPEngine
                     }
                 }
             }
-
             wasDownKeyPressed = isDownKeyPressed;
         }
     }
