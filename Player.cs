@@ -20,7 +20,6 @@ namespace GXPEngine
         private static bool player2KeyDown = false;
 
         // Animations
-        private bool globalAnimationState = false;
         private AnimationSprite rightPanAgree;
         private AnimationSprite rightPanDeny;
         private int animationFrame = 0;
@@ -91,6 +90,14 @@ namespace GXPEngine
                     Console.WriteLine($"Exception: player {playerId} controller is not connected or the port is wrong");
                 }
             }
+            
+            // The callback to communicate data received from the controller.
+            // As Update method is not fast enough to receive,
+            // I need to get results as soon as there it something to read
+            if (gyroscope != null)
+            {
+                // gyroscope.OnDataReceived += HandleGyroData;
+            }
 
             // The callback to communicate with GUI
             UpdateScoreCallback = (result) => UpdateScore(result);
@@ -118,14 +125,18 @@ namespace GXPEngine
 
         void Update()
         {
-            gyroscope?.SerialPort_DataReceived();
-            
+            gyroscope.SerialPort_DataReceived();
             Controls();
 
             foreach (var animationName in animations.Keys)
             {
                 UpdateAnimation(animationName);
             }
+        }
+        
+        void HandleGyroData(string data)
+        {
+            Console.WriteLine("Motion detected");
         }
 
         void StartAnimation(string animationName)
@@ -160,7 +171,6 @@ namespace GXPEngine
                     animationTimer = 0f; // Reset the timer for the next frame
                     animations[animationName].NextFrame(); // Move to the next frame
                     frameCount += 1;
-                    Console.WriteLine($"Updating animation {animationName}: frame {frameCount}");
                     if (frameCount == animations[animationName].frameCount)
                     {
                         // Assuming animation loops back to 0

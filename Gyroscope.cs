@@ -9,6 +9,9 @@ namespace GXPEngine
 {
     public class Gyroscope
     {
+        public delegate void DataReceivedHandler(string data);
+        // public event DataReceivedHandler OnDataReceived;
+        
         private SerialPort arduino;
         public float pitch;
         public float roll;
@@ -28,9 +31,7 @@ namespace GXPEngine
 
         public Gyroscope(string portName, int baudRate)
         {
-            arduino = new SerialPort();
-            arduino.PortName = portName;
-            arduino.BaudRate = baudRate;
+            arduino = new SerialPort(portName, baudRate);
             arduino.RtsEnable = true;
             arduino.DtrEnable = true;
             arduino.Open();
@@ -43,10 +44,14 @@ namespace GXPEngine
 
         public void SerialPort_DataReceived()
         {
-            while ( arduino.BytesToRead > 1 )
-            {
-                ProcessLine( arduino.ReadLine() );
-            }
+            // while ( arduino.BytesToRead > 1 )
+            // {
+            //     ProcessLine( arduino.ReadLine() );
+            // }
+            var receivedData = arduino?.ReadLine();
+            ProcessLine(receivedData);
+
+            // OnDataReceived?.Invoke(receivedData);   // Raise the event
         }
         
         void ProcessLine( string data ) {
