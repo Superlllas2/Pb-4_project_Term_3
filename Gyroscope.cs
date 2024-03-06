@@ -48,8 +48,7 @@ namespace GXPEngine
             // {
             //     ProcessLine( arduino.ReadLine() );
             // }
-            var receivedData = arduino?.ReadLine();
-            ProcessLine(receivedData);
+            ProcessLine(arduino?.ReadLine());
 
             // OnDataReceived?.Invoke(receivedData);   // Raise the event
         }

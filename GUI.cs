@@ -12,6 +12,10 @@ namespace GXPEngine
         private Sprite resultBadSprite1;
         private Sprite resultBadSprite2;
         
+        // Static sprites
+        public Sprite rightEgg;
+        public Sprite leftEgg;
+        
         public Sprite leftPan;
         public Sprite rightPan;
         
@@ -47,6 +51,16 @@ namespace GXPEngine
             rightPan = new Canvas("panRightStatic.png", false);
             rightPan.scale = 2f;
             AddChild(rightPan);
+            
+            rightEgg = new Sprite("eggRightPlate.png", false, false);
+            rightEgg.scale = 2f;
+            rightEgg.visible = false;
+            AddChild(rightPan);
+
+            leftEgg = new Sprite("eggLeftPlate.png", false, false);
+            leftEgg.scale = 2f;
+            leftEgg.visible = false;
+            AddChild(leftEgg);
 
             playerChoice1 = new Canvas("circle.png", false);
             playerChoice1.scale = 0.05f;

@@ -8,14 +8,18 @@ namespace GXPEngine
 {
     public class Player : GameObject
     {
+        // Player
         private int score;
         private int playerId;
         private GUI gui;
         private Eggs eggs;
         private int orderPlayer;
-        private bool wasDownKeyPressed;
+        public int choice; // possibly redundant
         // private bool wasGyroLeftActionActive = false;
-
+        
+        // Controls
+        private bool ControlsEnabled;
+        private bool wasDownKeyPressed;
         private static bool player1KeyDown = false;
         private static bool player2KeyDown = false;
 
@@ -24,15 +28,19 @@ namespace GXPEngine
         private AnimationSprite rightPanDeny;
         private int animationFrame = 0;
         private float animationTimer = 0f;
+        private Queue<string> animationQueue = new Queue<string>();
         private Dictionary<string, AnimationSprite> animations = new Dictionary<string, AnimationSprite>();
         private Dictionary<string, bool> animationStates = new Dictionary<string, bool>();
         private Dictionary<string, float> animationTimers = new Dictionary<string, float>();
         private Dictionary<string, List<GameObject>> animationObjectMap = new Dictionary<string, List<GameObject>>();
-        private const int ANIMATION_FRAME_DURATION = 14; // Duration for all animations
+        private const int ANIMATION_FRAME_DURATION = 10; // Duration for all animations
 
         // Arduino controller
         private Gyroscope gyroscope;
         private bool wasGyroLeftActionActive = false;
+        private bool wasGyroUpActionActive = false;
+        private bool isGyroLeftActive = false;
+        private bool isGyroUpActive = false;
 
         // Test
         private float _animationFrameCounter;
@@ -43,8 +51,6 @@ namespace GXPEngine
         private float elapsedTime;
         private bool timerActive;
         
-        // For the choice, 0 = left, 1 = right
-        public int choice;
 
         private static readonly int[,] playerControls = new int[2, 5]
         {
@@ -62,6 +68,7 @@ namespace GXPEngine
             this.orderPlayer = orderPlayer;
             this.choice = choice;
             score = 0;
+            ControlsEnabled = true;
 
             rightPanAgree = new AnimationSprite("DynamicAnimations/rightPanAgree.png", 7, 1, -1, false, false);
             rightPanAgree.scale = 2f;
@@ -94,10 +101,10 @@ namespace GXPEngine
             // The callback to communicate data received from the controller.
             // As Update method is not fast enough to receive,
             // I need to get results as soon as there it something to read
-            if (gyroscope != null)
-            {
-                // gyroscope.OnDataReceived += HandleGyroData;
-            }
+            // if (gyroscope != null)
+            // {
+            //     // gyroscope.OnDataReceived += HandleGyroData;
+            // }
 
             // The callback to communicate with GUI
             UpdateScoreCallback = (result) => UpdateScore(result);
@@ -123,20 +130,29 @@ namespace GXPEngine
             return gyroscope?.roll < -25;
         }
 
+        private bool IsGyroUpActionActive()
+        {
+            return gyroscope?.pitch < -15;
+        }
+
         void Update()
         {
             gyroscope.SerialPort_DataReceived();
-            Controls();
+
+            if (ControlsEnabled)
+            {
+                Controls();
+            }
 
             foreach (var animationName in animations.Keys)
             {
                 UpdateAnimation(animationName);
             }
         }
-        
-        void HandleGyroData(string data)
+
+        void NextRoundHeHeHe()
         {
-            Console.WriteLine("Motion detected");
+            
         }
 
         void StartAnimation(string animationName)
@@ -156,7 +172,7 @@ namespace GXPEngine
                 animationStates[animationName] = true;
                 animationFrame = 0;
                 animationTimer = 0f;
-                animations[animationName].SetCycle(0, 7); // Assuming you have 7 frames
+                animations[animationName].SetCycle(0, animations[animationName].frameCount);
                 animations[animationName].SetFrame(animationFrame);
             }
         }
@@ -202,7 +218,9 @@ namespace GXPEngine
 
         private void Controls()
         {
-            bool isGyroLeftActive = IsGyroLeftActionActive();
+            isGyroLeftActive = IsGyroLeftActionActive();
+            isGyroUpActive = IsGyroUpActionActive();
+            
             // Get the control set based on playerId
             var upKey = playerControls[playerId, 0];
             var downKey = playerControls[playerId, 1];
@@ -230,15 +248,14 @@ namespace GXPEngine
                     {
                         StartAnimation("Player2Other");
 
-                        // TODO: uncomment to get eggs work
-                        // gui.eggArray[gui.currentEgg].visible = false;
-                        // gui.eggArray[gui.currentEgg++].visible = true;
+                        gui.eggArray[gui.currentEgg].visible = false;
+                        gui.eggArray[gui.currentEgg++].visible = true;
                     }
                 }
             }
 
             // ------ Up ------
-            if (Input.GetKey(upKey))
+            if ((isGyroUpActive && !wasGyroUpActionActive) || Input.GetKey(upKey))
             {
                 if (playerId == 0)
                 {
@@ -247,12 +264,12 @@ namespace GXPEngine
                 {
                     StartAnimation("Player2Himself");
 
-                    // TODO: uncomment to get eggs work
-                    // gui.eggArray[gui.currentEgg].visible = false;
-                    // gui.eggArray[gui.currentEgg++].visible = true;
+                    gui.eggArray[gui.currentEgg].visible = false;
+                    gui.eggArray[gui.currentEgg++].visible = true;
                 }
             }
             wasGyroLeftActionActive = isGyroLeftActive;
+            wasGyroUpActionActive = isGyroUpActive;
             // wasLeftKeyPressed = Input.GetKey(leftKey);
             
             if (Input.GetKey(rightKey))
