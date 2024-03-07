@@ -37,9 +37,10 @@ public class MyGame : Game
 		
 		gui = new GUI();
 		AddChild(gui);
-
-		player1 = new Player(0, gui, eggs, 0,0, "/dev/cu.usbmodem2101");
-		player2 = new Player(1, gui, eggs, 1,1, "/dev/cu.usbmodem2101");
+		// "/dev/cu.usbmodem21401"
+		// "/dev/cu.usbmodem21301"
+		player1 = new Player(0, gui, eggs, 0,0, "/dev/cu.usbmodem21401");
+		player2 = new Player(1, gui, eggs, 1,1, "/dev/cu.usbmodem21301");
 		gui.SetScoreUpdateCallback(player1.choice, player1.UpdateScoreCallback);
 		gui.SetScoreUpdateCallback(player2.choice, player2.UpdateScoreCallback);
 		AddChild(player1);

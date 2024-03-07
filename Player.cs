@@ -16,24 +16,28 @@ namespace GXPEngine
         private int orderPlayer;
         public int choice; // possibly redundant
         // private bool wasGyroLeftActionActive = false;
-        
+
         // Controls
         private bool ControlsEnabled;
+
         private bool wasDownKeyPressed;
-        private static bool player1KeyDown = false;
-        private static bool player2KeyDown = false;
+
+        private static bool player1Desided;
+        private static bool player2Desided;
+        private static bool player1KeyDown;
+        private static bool player2KeyDown;
 
         // Animations
         private AnimationSprite rightPanAgree;
         private AnimationSprite rightPanDeny;
+        private AnimationSprite badEgg;
         private int animationFrame = 0;
         private float animationTimer = 0f;
-        private Queue<string> animationQueue = new Queue<string>();
         private Dictionary<string, AnimationSprite> animations = new Dictionary<string, AnimationSprite>();
         private Dictionary<string, bool> animationStates = new Dictionary<string, bool>();
         private Dictionary<string, float> animationTimers = new Dictionary<string, float>();
         private Dictionary<string, List<GameObject>> animationObjectMap = new Dictionary<string, List<GameObject>>();
-        private const int ANIMATION_FRAME_DURATION = 10; // Duration for all animations
+        private const int ANIMATION_FRAME_DURATION = 5; // Duration for all animations
 
         // Arduino controller
         private Gyroscope gyroscope;
@@ -50,7 +54,7 @@ namespace GXPEngine
         private float coolDownTime = 4f;
         private float elapsedTime;
         private bool timerActive;
-        
+
 
         private static readonly int[,] playerControls = new int[2, 5]
         {
@@ -70,6 +74,8 @@ namespace GXPEngine
             score = 0;
             ControlsEnabled = true;
 
+
+            // ----- Setup animation -----
             rightPanAgree = new AnimationSprite("DynamicAnimations/rightPanAgree.png", 7, 1, -1, false, false);
             rightPanAgree.scale = 2f;
             rightPanAgree.visible = false;
@@ -84,20 +90,22 @@ namespace GXPEngine
             animationObjectMap.Add("Player2Other", new List<GameObject> { gui.rightPan });
             AddChild(rightPanDeny);
 
-            
+            badEgg = new AnimationSprite("DynamicAnimations/badEgg.png", 12, 1, -1, false, false);
+            badEgg.scale = 3f;
+            badEgg.visible = false;
+            AddAnimation("badEgg", badEgg);
+            AddChild(badEgg);
+            // ---------------------------
             // Handle exception of not connected controller
-            if (port != null)
+            try
             {
-                try
-                {
-                    gyroscope = new Gyroscope(port, 57600);
-                }
-                catch
-                {
-                    Console.WriteLine($"Exception: player {playerId} controller is not connected or the port is wrong");
-                }
+                gyroscope = new Gyroscope(port, 57600);
             }
-            
+            catch
+            {
+                Console.WriteLine($"Exception: player {playerId} controller is not connected or the port is wrong");
+            }
+
             // The callback to communicate data received from the controller.
             // As Update method is not fast enough to receive,
             // I need to get results as soon as there it something to read
@@ -109,40 +117,22 @@ namespace GXPEngine
             // The callback to communicate with GUI
             UpdateScoreCallback = (result) => UpdateScore(result);
         }
-        
-        private bool BothPlayersDecided()
-        {
-            return player1KeyDown && player2KeyDown;
-        }
-
-        private void UpdateScore(int result)
-        {
-            score += (result == 0) ? 10 : -10;
-        }
-
-        public int GetScore()
-        {
-            return score;
-        }
-
-        private bool IsGyroLeftActionActive()
-        {
-            return gyroscope?.roll < -25;
-        }
-
-        private bool IsGyroUpActionActive()
-        {
-            return gyroscope?.pitch < -15;
-        }
 
         void Update()
         {
-            gyroscope.SerialPort_DataReceived();
+            gyroscope?.SerialPort_DataReceived();
 
             if (ControlsEnabled)
             {
                 Controls();
             }
+
+            if (BothPlayersDecided())
+            {
+                player1Desided = false;
+                player2Desided = false;
+            }
+
 
             foreach (var animationName in animations.Keys)
             {
@@ -150,11 +140,10 @@ namespace GXPEngine
             }
         }
 
-        void NextRoundHeHeHe()
-        {
-            
-        }
-
+        /// <summary>
+        /// Starts the specified animation.
+        /// </summary>
+        /// <param name="animationName">The name of the animation.</param>
         void StartAnimation(string animationName)
         {
             if (!animationStates[animationName] && animations.ContainsKey(animationName))
@@ -177,6 +166,10 @@ namespace GXPEngine
             }
         }
 
+        /// <summary>
+        /// Updates a specific animation frame for the player
+        /// </summary>
+        /// <param name="animationName">The name of the animation to update</param>
         void UpdateAnimation(string animationName)
         {
             animationTimer += 1;
@@ -194,7 +187,7 @@ namespace GXPEngine
                         frameCount = 0;
                         animations[animationName].visible = false; // Hide the animation sprite
                         animationStates[animationName] = false;
-                        
+
                         // Show the specific objects related to this animation
                         if (animationObjectMap.ContainsKey(animationName))
                         {
@@ -208,7 +201,11 @@ namespace GXPEngine
             }
         }
 
-        // Call this method to add a new animation
+        /// <summary>
+        /// This method is called to add a new animation
+        /// </summary>
+        /// <param name="name">The name of the animation</param>
+        /// <param name="animation">The AnimationSprite object representing the animation</param>
         private void AddAnimation(string name, AnimationSprite animation)
         {
             animations[name] = animation;
@@ -220,7 +217,7 @@ namespace GXPEngine
         {
             isGyroLeftActive = IsGyroLeftActionActive();
             isGyroUpActive = IsGyroUpActionActive();
-            
+
             // Get the control set based on playerId
             var upKey = playerControls[playerId, 0];
             var downKey = playerControls[playerId, 1];
@@ -231,23 +228,25 @@ namespace GXPEngine
             // Console.WriteLine(!BothPlayersDecided());
             // Console.WriteLine("Left player: " + player1KeyDown);
             // Console.WriteLine("Right player: " + player2KeyDown);
-            
-            
+
+
             // ------ Left ------
             if ((isGyroLeftActive && !wasGyroLeftActionActive) || Input.GetKey(leftKey))
             {
-                if (!BothPlayersDecided())
+                if (!BothPlayersKeyDown())
                 {
                     // Only allow changing choice if decisions are not locked
-                    gui.ChangeChoice(playerId, leftKey);
+                    // gui.ChangeChoice(playerId, leftKey); LEGACY
                     choice = 0;
                     if (playerId == 0)
                     {
                     }
-                    else if (playerId == 1)
+                    else if (playerId == 1 && !player2Desided)
                     {
+                        orderPlayer += 2;
+                        gui.ChangeOtherPlayerScore(0, eggs.GetResult(orderPlayer));
                         StartAnimation("Player2Other");
-
+                        player2Desided = true;
                         gui.eggArray[gui.currentEgg].visible = false;
                         gui.eggArray[gui.currentEgg++].visible = true;
                     }
@@ -257,40 +256,52 @@ namespace GXPEngine
             // ------ Up ------
             if ((isGyroUpActive && !wasGyroUpActionActive) || Input.GetKey(upKey))
             {
-                if (playerId == 0)
+                if (playerId == 0 && !player1Desided)
                 {
+                    player1Desided = true;
+                    ChangeScore(eggs.GetResult(orderPlayer));
+                    orderPlayer += 2;
                 }
-                else if (playerId == 1)
+                else if (playerId == 1 && !player2Desided)
                 {
+                    orderPlayer += 2;
+                    ChangeScore(eggs.GetResult(orderPlayer));
                     StartAnimation("Player2Himself");
-
+                    player2Desided = true;
                     gui.eggArray[gui.currentEgg].visible = false;
                     gui.eggArray[gui.currentEgg++].visible = true;
                 }
             }
+
             wasGyroLeftActionActive = isGyroLeftActive;
             wasGyroUpActionActive = isGyroUpActive;
             // wasLeftKeyPressed = Input.GetKey(leftKey);
-            
+
+            // ------ Right ------
             if (Input.GetKey(rightKey))
             {
-                if (!BothPlayersDecided())
+                if (!BothPlayersKeyDown())
                 {
                     // Only allow changing choice if decisions are not locked
-                    gui.ChangeChoice(playerId, rightKey);
+                    // gui.ChangeChoice(playerId, rightKey); LEGACY
                     choice = 1;
-                    if (playerId == 0)
+                    if (playerId == 0 && !player1Desided)
                     {
+                        gui.ChangeOtherPlayerScore(1, eggs.GetResult(orderPlayer));
+                        gui.eggArray[gui.currentEgg].visible = false;
+                        gui.eggArray[gui.currentEgg++].visible = true;
+                        orderPlayer += 2;
                     }
                     else if (playerId == 1)
                     {
                     }
                 }
             }
+            // ---------------------
 
             // ----- Down ----- S -----
             // Check if both players have made their decisions or if cooldown is active
-            if (!BothPlayersDecided() && !timerActive)
+            if (!BothPlayersKeyDown() && !timerActive)
             {
                 // Allow decision making if a player hasn't already made a decision
                 if (!(playerId == 0 ? player1KeyDown : player2KeyDown))
@@ -331,7 +342,7 @@ namespace GXPEngine
             else
             {
                 // Cooldown logic
-                if (BothPlayersDecided())
+                if (BothPlayersKeyDown())
                 {
                     timerActive = true;
                     elapsedTime += Time.deltaTime;
@@ -345,7 +356,45 @@ namespace GXPEngine
                     }
                 }
             }
+
             wasDownKeyPressed = isDownKeyPressed;
+        }
+
+        private bool BothPlayersKeyDown()
+        {
+            return player1KeyDown && player2KeyDown;
+        }
+
+        private void UpdateScore(int result)
+        {
+            score += (result == 0) ? 10 : -10;
+        }
+
+        public int GetScore()
+        {
+            return score;
+        }
+
+        private bool IsGyroLeftActionActive()
+        {
+            return gyroscope?.roll < -25;
+        }
+
+        private bool IsGyroUpActionActive()
+        {
+            return gyroscope?.pitch < -15;
+        }
+
+        private void ChangeScore(int i)
+        {
+            // Egg = 0 is good | Egg = 1 is bad
+            Console.WriteLine($"Changing score for Player {playerId}. Result: {i}");
+            score += (i == 0) ? 10 : -10;
+        }
+
+        private bool BothPlayersDecided()
+        {
+            return player1Desided && player2Desided;
         }
     }
 }

@@ -131,6 +131,23 @@ namespace GXPEngine
             }
         }
 
+        /// <summary>
+        /// Changes the score of the other player.
+        /// </summary>
+        /// <param name="playerId">The ID of the player whose score will be updated.</param>
+        /// <param name="result">The new score for the player.</param>
+        public void ChangeOtherPlayerScore(int playerId, int result)
+        {
+            if (playerId == 0)
+            {
+                player1ScoreUpdateCallback?.Invoke(result);
+            }
+            else
+            {
+                player2ScoreUpdateCallback?.Invoke(result);
+            }
+        }
+
         // Makes result sprites visible when choice is made
         public void ShowResult(int choice, int result)
         {
