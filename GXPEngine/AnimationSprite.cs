@@ -241,9 +241,12 @@ namespace GXPEngine
 			if (_frames+_startFrame>=_rows * _cols) {
 				_frames = _rows * _cols - _startFrame;
 			}
-			if (animationDelay<255) {
-				_animationDelay=animationDelay;
+
+			if (animationDelay < 255)
+			{
+				_animationDelay = animationDelay;
 			}
+
 			if (switchFrame && (_currentFrame<_startFrame || _currentFrame>=_startFrame+_frames)) {
 				SetFrame(_startFrame);
 				_animationFrameCounter=0;

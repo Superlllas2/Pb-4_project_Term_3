@@ -21,9 +21,17 @@ public class MyGame : Game
 	private HUD hud;
 	private GUI gui;
 	private Eggs eggs;
+	private Sound soundtrack;
+	private SoundChannel soundChannel;
 
 	private MyGame() : base(1366, 768, false, pPixelArt:true)
 	{
+		soundtrack = new Sound("assets/soundtrack.mp3");
+		soundChannel = soundtrack.Play();
+		
+		Menu menu = new Menu();
+		AddChild(menu);
+		
 		background = new Canvas("Background.png", false);
 		background.scale = 2f;
 		AddChild(background);

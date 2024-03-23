@@ -28,8 +28,14 @@ namespace GXPEngine
         private static bool player2KeyDown;
 
         // Animations
-        private AnimationSprite rightPanAgree;
-        private AnimationSprite rightPanDeny;
+        private AnimationSprite rightPanHimselfBad;
+        private AnimationSprite rightPanOtherBad;
+        private AnimationSprite leftPanHimselfBad;
+        private AnimationSprite leftPanOtherBad;
+        private AnimationSprite rightPanHimselfGood;
+        private AnimationSprite rightPanOtherGood;
+        private AnimationSprite leftPanHimselfGood;
+        private AnimationSprite leftPanOtherGood;
         private AnimationSprite badEgg;
         private int animationFrame = 0;
         private float animationTimer = 0f;
@@ -37,7 +43,7 @@ namespace GXPEngine
         private Dictionary<string, bool> animationStates = new Dictionary<string, bool>();
         private Dictionary<string, float> animationTimers = new Dictionary<string, float>();
         private Dictionary<string, List<GameObject>> animationObjectMap = new Dictionary<string, List<GameObject>>();
-        private const int ANIMATION_FRAME_DURATION = 5; // Duration for all animations
+        private const int ANIMATION_FRAME_DURATION = 15; // Duration for all animations
 
         // Arduino controller
         private Gyroscope gyroscope;
@@ -76,25 +82,67 @@ namespace GXPEngine
 
 
             // ----- Setup animation -----
-            rightPanAgree = new AnimationSprite("DynamicAnimations/rightPanAgree.png", 7, 1, -1, false, false);
-            rightPanAgree.scale = 2f;
-            rightPanAgree.visible = false;
-            AddAnimation("Player2Himself", rightPanAgree);
+            rightPanHimselfBad =
+                new AnimationSprite("DynamicAnimations/rightPanHimselfBad.png", 19, 1, -1, false, false);
+            rightPanHimselfBad.scale = 2f;
+            rightPanHimselfBad.visible = false;
+            AddAnimation("Player2Himself", rightPanHimselfBad);
             animationObjectMap.Add("Player2Himself", new List<GameObject> { gui.rightPan });
-            AddChild(rightPanAgree);
+            AddChild(rightPanHimselfBad);
 
-            rightPanDeny = new AnimationSprite("DynamicAnimations/rightPanDeny.png", 7, 1, -1, false, false);
-            rightPanDeny.scale = 2f;
-            rightPanDeny.visible = false;
-            AddAnimation("Player2Other", rightPanDeny);
+            rightPanOtherBad = new AnimationSprite("DynamicAnimations/rightPanOtherBad.png", 19, 1, -1, false, false);
+            rightPanOtherBad.scale = 2f;
+            rightPanOtherBad.visible = false;
+            AddAnimation("Player2Other", rightPanOtherBad);
             animationObjectMap.Add("Player2Other", new List<GameObject> { gui.rightPan });
-            AddChild(rightPanDeny);
+            AddChild(rightPanOtherBad);
 
-            badEgg = new AnimationSprite("DynamicAnimations/badEgg.png", 12, 1, -1, false, false);
-            badEgg.scale = 3f;
-            badEgg.visible = false;
-            AddAnimation("badEgg", badEgg);
-            AddChild(badEgg);
+            leftPanHimselfBad =
+                new AnimationSprite("DynamicAnimations/leftPanHimselfBad.png", 19, 1, -1, false, false);
+            leftPanHimselfBad.scale = 2f;
+            leftPanHimselfBad.visible = false;
+            AddAnimation("Player1Himself", leftPanHimselfBad);
+            animationObjectMap.Add("Player1Himself", new List<GameObject> { gui.leftPan });
+            AddChild(leftPanHimselfBad);
+
+            leftPanOtherBad = new AnimationSprite("DynamicAnimations/rightPanHimselfBad.png", 19, 1, -1, false, false);
+            leftPanOtherBad.scale = 2f;
+            leftPanOtherBad.visible = false;
+            AddAnimation("Player1Other", leftPanOtherBad);
+            animationObjectMap.Add("Player1Other", new List<GameObject> { gui.leftPan });
+            AddChild(leftPanOtherBad);
+
+            rightPanHimselfGood =
+                new AnimationSprite("DynamicAnimations/rightPanHimselfGood.png", 11, 1, -1, false, false);
+            rightPanHimselfGood.scale = 2f;
+            rightPanHimselfGood.visible = false;
+            AddAnimation("Player2HimselfGood", rightPanHimselfGood);
+            animationObjectMap.Add("Player2HimselfGood", new List<GameObject> { gui.rightPan });
+            AddChild(rightPanHimselfGood);
+
+            rightPanOtherGood =
+                new AnimationSprite("DynamicAnimations/rightPanOtherGood.png", 11, 1, -1, false, false);
+            rightPanOtherGood.scale = 2f;
+            rightPanOtherGood.visible = false;
+            AddAnimation("Player2OtherGood", rightPanOtherGood);
+            animationObjectMap.Add("Player2OtherGood", new List<GameObject> { gui.rightPan });
+            AddChild(rightPanOtherGood);
+
+            leftPanHimselfGood =
+                new AnimationSprite("DynamicAnimations/leftPanHimselfGood.png", 11, 1, -1, false, false);
+            leftPanHimselfGood.scale = 2f;
+            leftPanHimselfGood.visible = false;
+            AddAnimation("Player1HimselfGood", leftPanHimselfGood);
+            animationObjectMap.Add("Player1HimselfGood", new List<GameObject> { gui.leftPan });
+            AddChild(leftPanHimselfGood);
+
+            leftPanOtherGood = new AnimationSprite("DynamicAnimations/leftPanOtherGood.png", 11, 1, -1, false, false);
+            leftPanOtherGood.scale = 2f;
+            leftPanOtherGood.visible = false;
+            AddAnimation("Player1OtherGood", leftPanOtherGood);
+            animationObjectMap.Add("Player1OtherGood", new List<GameObject> { gui.leftPan });
+            AddChild(leftPanOtherGood);
+
             // ---------------------------
             // Handle exception of not connected controller
             try
@@ -243,12 +291,19 @@ namespace GXPEngine
                     }
                     else if (playerId == 1 && !player2Desided)
                     {
-                        orderPlayer += 2;
                         gui.ChangeOtherPlayerScore(0, eggs.GetResult(orderPlayer));
-                        StartAnimation("Player2Other");
+                        if (eggs.GetResult(orderPlayer) == 0)
+                        {
+                            StartAnimation("Player2OtherGood");
+                        }
+                        else
+                        {
+                            StartAnimation("Player2Other");
+                        }
                         player2Desided = true;
                         gui.eggArray[gui.currentEgg].visible = false;
                         gui.eggArray[gui.currentEgg++].visible = true;
+                        orderPlayer += 2;
                     }
                 }
             }
@@ -260,16 +315,33 @@ namespace GXPEngine
                 {
                     player1Desided = true;
                     ChangeScore(eggs.GetResult(orderPlayer));
+                    gui.eggArray[gui.currentEgg++].visible = true;
+                    gui.eggArray[gui.currentEgg].visible = false;
+                    if (eggs.GetResult(orderPlayer) == 0)
+                    {
+                        StartAnimation("Player1HimselfGood");
+                    }
+                    else
+                    {
+                        StartAnimation("Player1Himself");
+                    }
                     orderPlayer += 2;
                 }
                 else if (playerId == 1 && !player2Desided)
                 {
-                    orderPlayer += 2;
                     ChangeScore(eggs.GetResult(orderPlayer));
-                    StartAnimation("Player2Himself");
                     player2Desided = true;
-                    gui.eggArray[gui.currentEgg].visible = false;
                     gui.eggArray[gui.currentEgg++].visible = true;
+                    gui.eggArray[gui.currentEgg].visible = false;
+                    if (eggs.GetResult(orderPlayer) == 0)
+                    {
+                        StartAnimation("Player2HimselfGood");
+                    }
+                    else
+                    {
+                        StartAnimation("Player2Himself");
+                    }
+                    orderPlayer += 2;
                 }
             }
 
@@ -288,8 +360,17 @@ namespace GXPEngine
                     if (playerId == 0 && !player1Desided)
                     {
                         gui.ChangeOtherPlayerScore(1, eggs.GetResult(orderPlayer));
-                        gui.eggArray[gui.currentEgg].visible = false;
                         gui.eggArray[gui.currentEgg++].visible = true;
+                        gui.eggArray[gui.currentEgg].visible = false;
+                        orderPlayer += 2;
+                        if (eggs.GetResult(orderPlayer) == 0)
+                        {
+                            StartAnimation("Player1OtherGood");
+                        }
+                        else
+                        {
+                            StartAnimation("Player1Other");
+                        }
                         orderPlayer += 2;
                     }
                     else if (playerId == 1)

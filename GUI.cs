@@ -25,7 +25,7 @@ namespace GXPEngine
         private float elapsedTimeSinceResultShown;
         private bool resultSpriteTimerActive;
         
-        public Sprite[] eggArray = new Sprite[13];
+        public Sprite[] eggArray = new Sprite[14];
         public int currentEgg;
         
         private Action<int> player1ScoreUpdateCallback;
@@ -33,7 +33,7 @@ namespace GXPEngine
         
         public GUI() : base(1366, 768)
         {
-            for (int i = 0; i < 13; i++) {
+            for (int i = 0; i < eggArray.Length; i++) {
                 string imagePath = $"Eggbox/EggBox{i}.png";
                 eggArray[i] = new Sprite(imagePath);
                 eggArray[i].scale = 2f;
@@ -42,7 +42,6 @@ namespace GXPEngine
             }
             
             eggArray[0].visible = true;
-            
             
             leftPan = new Canvas("panLeftStatic.png", false);
             leftPan.scale = 2f;
@@ -61,38 +60,6 @@ namespace GXPEngine
             leftEgg.scale = 2f;
             leftEgg.visible = false;
             AddChild(leftEgg);
-
-            playerChoice1 = new Canvas("circle.png", false);
-            playerChoice1.scale = 0.05f;
-            playerChoice2 = new Canvas("circle.png", false);
-            playerChoice2.scale = 0.05f;
-            AddChild(playerChoice1);
-            AddChild(playerChoice2);
-            playerChoice1.SetXY(400, 300);
-            playerChoice2.SetXY(840, 400);
-
-            resultGoodSprite1 = new Sprite("successEgg.png", true, false);
-            resultGoodSprite1.scale = 0.14f;
-            resultGoodSprite2 = new Sprite("successEgg.png", true, false);
-            resultGoodSprite1.scale = 0.14f;
-            resultGoodSprite2.scale = 0.14f;
-            resultGoodSprite1.SetXY(350, 530);
-            resultGoodSprite2.SetXY(810, 530);
-            resultGoodSprite1.visible = false;
-            resultGoodSprite2.visible = false;
-            resultBadSprite1 = new Sprite("failureEgg.png", true, false);
-            resultBadSprite1.scale = 0.1f;
-            resultBadSprite2 = new Sprite("failureEgg.png", true, false);
-            resultBadSprite1.scale = 0.1f;
-            resultBadSprite2.scale = 0.1f;
-            resultBadSprite1.SetXY(380, 500);
-            resultBadSprite2.SetXY(840, 500);
-            resultBadSprite1.visible = false;
-            resultBadSprite2.visible = false;
-            AddChild(resultGoodSprite1);
-            AddChild(resultGoodSprite2);
-            AddChild(resultBadSprite1);
-            AddChild(resultBadSprite2);
         }
 
         public void ChangeEggBox()
