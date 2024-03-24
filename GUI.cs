@@ -74,17 +74,6 @@ namespace GXPEngine
                 player2ScoreUpdateCallback = callback;
             }
         }
-        
-        public void ChangeChoice(int playerId, int key)
-        {
-            int x = (key == Key.D || key == Key.RIGHT) ? 840 : 400;
-
-            if (playerId == 0) {
-                playerChoice1.SetXY(x, 300);
-            } else if (playerId == 1) {
-                playerChoice2.SetXY(x, 400);
-            }
-        }
 
         // Makes decision Sprite disappear when clicked down button 
         public void DecisionMade(int playerId)

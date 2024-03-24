@@ -15,7 +15,6 @@ namespace GXPEngine
         private Eggs eggs;
         private int orderPlayer;
         public int choice; // possibly redundant
-        // private bool wasGyroLeftActionActive = false;
 
         // Controls
         private bool ControlsEnabled;
@@ -37,20 +36,22 @@ namespace GXPEngine
         private AnimationSprite leftPanHimselfGood;
         private AnimationSprite leftPanOtherGood;
         private AnimationSprite badEgg;
-        private int animationFrame = 0;
-        private float animationTimer = 0f;
+        private int animationFrame;
+        private float animationTimer;
         private Dictionary<string, AnimationSprite> animations = new Dictionary<string, AnimationSprite>();
         private Dictionary<string, bool> animationStates = new Dictionary<string, bool>();
         private Dictionary<string, float> animationTimers = new Dictionary<string, float>();
         private Dictionary<string, List<GameObject>> animationObjectMap = new Dictionary<string, List<GameObject>>();
-        private const int ANIMATION_FRAME_DURATION = 15; // Duration for all animations
+        private const int ANIMATION_FRAME_DURATION = 20; // Duration for all animations
 
         // Arduino controller
         private Gyroscope gyroscope;
-        private bool wasGyroLeftActionActive = false;
-        private bool wasGyroUpActionActive = false;
-        private bool isGyroLeftActive = false;
-        private bool isGyroUpActive = false;
+        private bool wasGyroLeftActionActive;
+        private bool wasGyroUpActionActive;
+        private bool wasGyroRightActionActive;
+        private bool isGyroLeftActive;
+        private bool isGyroUpActive;
+        private bool isGyroRightActive;
 
         // Test
         private float _animationFrameCounter;
@@ -105,7 +106,7 @@ namespace GXPEngine
             animationObjectMap.Add("Player1Himself", new List<GameObject> { gui.leftPan });
             AddChild(leftPanHimselfBad);
 
-            leftPanOtherBad = new AnimationSprite("DynamicAnimations/rightPanHimselfBad.png", 19, 1, -1, false, false);
+            leftPanOtherBad = new AnimationSprite("DynamicAnimations/leftPanOtherBad.png", 19, 1, -1, false, false);
             leftPanOtherBad.scale = 2f;
             leftPanOtherBad.visible = false;
             AddAnimation("Player1Other", leftPanOtherBad);
@@ -168,6 +169,8 @@ namespace GXPEngine
 
         void Update()
         {
+            Console.WriteLine("Player1: " + player1Desided);
+            Console.WriteLine("Player2: " + player2Desided);
             gyroscope?.SerialPort_DataReceived();
 
             if (ControlsEnabled)
@@ -265,6 +268,7 @@ namespace GXPEngine
         {
             isGyroLeftActive = IsGyroLeftActionActive();
             isGyroUpActive = IsGyroUpActionActive();
+            isGyroRightActive = IsGyroRightActionActive();
 
             // Get the control set based on playerId
             var upKey = playerControls[playerId, 0];
@@ -300,6 +304,7 @@ namespace GXPEngine
                         {
                             StartAnimation("Player2Other");
                         }
+
                         player2Desided = true;
                         gui.eggArray[gui.currentEgg].visible = false;
                         gui.eggArray[gui.currentEgg++].visible = true;
@@ -325,6 +330,7 @@ namespace GXPEngine
                     {
                         StartAnimation("Player1Himself");
                     }
+
                     orderPlayer += 2;
                 }
                 else if (playerId == 1 && !player2Desided)
@@ -341,16 +347,17 @@ namespace GXPEngine
                     {
                         StartAnimation("Player2Himself");
                     }
+
                     orderPlayer += 2;
                 }
             }
 
-            wasGyroLeftActionActive = isGyroLeftActive;
-            wasGyroUpActionActive = isGyroUpActive;
             // wasLeftKeyPressed = Input.GetKey(leftKey);
 
             // ------ Right ------
-            if (Input.GetKey(rightKey))
+            // TODO: playerDecided doesnt correctly work here
+            // TODO: animation of a bad and good outcomes are reversed
+            if ((isGyroRightActive && !wasGyroRightActionActive) || Input.GetKey(rightKey))
             {
                 if (!BothPlayersKeyDown())
                 {
@@ -362,9 +369,10 @@ namespace GXPEngine
                         gui.ChangeOtherPlayerScore(1, eggs.GetResult(orderPlayer));
                         gui.eggArray[gui.currentEgg++].visible = true;
                         gui.eggArray[gui.currentEgg].visible = false;
-                        orderPlayer += 2;
+                        
                         if (eggs.GetResult(orderPlayer) == 0)
                         {
+                            Console.WriteLine("We get here");
                             StartAnimation("Player1OtherGood");
                         }
                         else
@@ -378,7 +386,10 @@ namespace GXPEngine
                     }
                 }
             }
-            // ---------------------
+
+            wasGyroLeftActionActive = isGyroLeftActive;
+            wasGyroUpActionActive = isGyroUpActive;
+            wasGyroRightActionActive = isGyroRightActive;
 
             // ----- Down ----- S -----
             // Check if both players have made their decisions or if cooldown is active
@@ -390,13 +401,11 @@ namespace GXPEngine
                     // Decision making (left or right key)
                     if (Input.GetKey(leftKey))
                     {
-                        gui.ChangeChoice(playerId, leftKey);
                         choice = 0;
                     }
 
                     if (Input.GetKey(rightKey))
                     {
-                        gui.ChangeChoice(playerId, rightKey);
                         choice = 1;
                     }
 
@@ -458,11 +467,28 @@ namespace GXPEngine
 
         private bool IsGyroLeftActionActive()
         {
+            if (gyroscope?.roll < -25)
+            {
+                // debug
+            }
             return gyroscope?.roll < -25;
+        }
+
+        private bool IsGyroRightActionActive()
+        {
+            if (gyroscope?.roll > 25)
+            {
+                // debug
+            }
+            return gyroscope?.roll > 25;
         }
 
         private bool IsGyroUpActionActive()
         {
+            if (gyroscope?.pitch < -15)
+            {
+                // debug
+            }
             return gyroscope?.pitch < -15;
         }
 
