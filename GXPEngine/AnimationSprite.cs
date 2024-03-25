@@ -254,7 +254,7 @@ namespace GXPEngine
 		}
 
 		//------------------------------------------------------------------------------------------------------------------------
-		//			Ilia Nevrov changed a bit of	       	Animate()
+		//			                 	       	Animate()
 		//------------------------------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// If the current animation frame has been shown for [_animationDelay] game frames, this

@@ -81,8 +81,9 @@ namespace GXPEngine
             score = 0;
             ControlsEnabled = true;
 
+            
 
-            // ----- Setup animation -----
+            // ----- Animation setup -----
             rightPanHimselfBad =
                 new AnimationSprite("DynamicAnimations/rightPanHimselfBad.png", 19, 1, -1, false, false);
             rightPanHimselfBad.scale = 2f;
@@ -143,8 +144,10 @@ namespace GXPEngine
             AddAnimation("Player1OtherGood", leftPanOtherGood);
             animationObjectMap.Add("Player1OtherGood", new List<GameObject> { gui.leftPan });
             AddChild(leftPanOtherGood);
-
             // ---------------------------
+            
+            
+            
             // Handle exception of not connected controller
             try
             {
@@ -366,6 +369,7 @@ namespace GXPEngine
                     choice = 1;
                     if (playerId == 0 && !player1Desided)
                     {
+                        player1Desided = true;
                         gui.ChangeOtherPlayerScore(1, eggs.GetResult(orderPlayer));
                         gui.eggArray[gui.currentEgg++].visible = true;
                         gui.eggArray[gui.currentEgg].visible = false;
