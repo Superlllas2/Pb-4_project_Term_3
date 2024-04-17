@@ -4,3 +4,9 @@
 /Users/ilia/Downloads/GXPEngine2023c/GXPEngine/obj/x86/Debug/GXPEngine.csproj.CoreCompileInputs.cache
 /Users/ilia/Downloads/GXPEngine2023c/GXPEngine/obj/x86/Debug/GXPEngine.exe
 /Users/ilia/Downloads/GXPEngine2023c/GXPEngine/obj/x86/Debug/GXPEngine.pdb
+/Users/ilia/Downloads/GXPEngine2023c/GXPEngineNew/bin/Debug/GXPEngine.exe
+/Users/ilia/Downloads/GXPEngine2023c/GXPEngineNew/bin/Debug/GXPEngine.pdb
+/Users/ilia/Downloads/GXPEngine2023c/GXPEngineNew/obj/x86/Debug/GXPEngine.csproj.AssemblyReference.cache
+/Users/ilia/Downloads/GXPEngine2023c/GXPEngineNew/obj/x86/Debug/GXPEngine.csproj.CoreCompileInputs.cache
+/Users/ilia/Downloads/GXPEngine2023c/GXPEngineNew/obj/x86/Debug/GXPEngine.exe
+/Users/ilia/Downloads/GXPEngine2023c/GXPEngineNew/obj/x86/Debug/GXPEngine.pdb
