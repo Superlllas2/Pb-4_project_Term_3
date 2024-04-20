@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GXPEngine.Managers;
 
 namespace GXPEngine
@@ -9,6 +10,9 @@ namespace GXPEngine
         private Sound soundtrack;
         private SoundChannel soundChannel;
         private AnimationSprite test;
+
+        private bool isPlayer1;
+        private bool isDraw;
         // private Player player1;
         // private Player player2;
 
@@ -31,17 +35,38 @@ namespace GXPEngine
             // AddChild(button);
         }
 
+        public Menu(bool isPlayer1, bool isDraw)
+        {
+            this.isPlayer1 = isPlayer1;
+            this.isDraw = isDraw;
+            if (isDraw)
+            {
+                
+            }
+            else
+            {
+                if (isPlayer1)
+                {
+                    // code for player 1
+                }
+                else
+                {
+                    // code for player 2
+                }
+            }
+        }
+
         private void Update()
         {
             test.SetCycle(0, 8, 3);
             test.AnimateFixed();
             if (Input.GetMouseButtonDown(0))
             {
-                if (button.HitTestPoint(Input.mouseX, Input.mouseY))
-                {
+                // if (button.HitTestPoint(Input.mouseX, Input.mouseY))
+                // {
                     StartGame();
-                    HideMenu();
-                }
+                    // HideMenu();
+                // }
             }
         }
 
@@ -54,10 +79,20 @@ namespace GXPEngine
         {
             if (hasStarted == false)
             {
+                RemoveAll();
                 soundChannel.Stop();
                 Level level = new Level();
                 AddChild(level);
                 hasStarted = true;
+            }
+        }
+
+        private void RemoveAll()
+        {
+            List<GameObject> children = GetChildren();
+            foreach (GameObject child in children)
+            {
+                child.Destroy();
             }
         }
     }

@@ -172,8 +172,6 @@ namespace GXPEngine
 
         void Update()
         {
-            Console.WriteLine("Player1: " + player1Desided);
-            Console.WriteLine("Player2: " + player2Desided);
             gyroscope?.SerialPort_DataReceived();
 
             if (ControlsEnabled)

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 
 namespace GXPEngine
 {
@@ -32,12 +31,12 @@ namespace GXPEngine
             animations[key].SetFrame(0); // Reset to the first frame for next playback
         }
 
-        public void ResetAllAnimations()
-        {
-            foreach (var key in animationPlayed.Keys.ToList())
-            {
-                ResetAnimation(key);
-            }
-        }
+        // public void ResetAllAnimations()
+        // {
+        //     foreach (var key in animationPlayed.Keys.ToList())
+        //     {
+        //         ResetAnimation(key);
+        //     }
+        // }
     }
 }
