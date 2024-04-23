@@ -1,5 +1,9 @@
 namespace GXPEngine
 {
+                
+    // "/dev/cu.usbmodem21401"
+    // "/dev/cu.usbmodem21301"
+    
     public class Level : GameObject
     {
         private Canvas test;
@@ -35,12 +39,9 @@ namespace GXPEngine
             AddChild(fire);
             
             eggs = new Eggs();
-            // AddChild(eggs);
             
             gui = new GUI();
             AddChild(gui);
-            // "/dev/cu.usbmodem21401"
-            // "/dev/cu.usbmodem21301"
             player1 = new Player(0, gui, eggs, 0,0, "/dev/cu.usbmodem21401");
             player2 = new Player(1, gui, eggs, 1,1, "/dev/cu.usbmodem21301");
             gui.SetScoreUpdateCallback(player1.choice, player1.UpdateScoreCallback);

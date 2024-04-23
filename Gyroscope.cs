@@ -7,14 +7,21 @@ using System.Linq;
 
 namespace GXPEngine
 {
-    public class Gyroscope
+    public class Gyroscope : GameObject
     {
         public delegate void DataReceivedHandler(string data);
-        // public event DataReceivedHandler OnDataReceived;
         
-        private SerialPort arduino;
+        // Menu controls
+        public event Action Button1;
+        public event Action Button2;
+        
+        // Public data that is used in the 
         public float pitch;
         public float roll;
+        public bool isTopButton;
+        public bool isBottomButton;
+        
+        private SerialPort arduino;
         private float avgPitch;
         private float avgRoll;
         
@@ -53,8 +60,7 @@ namespace GXPEngine
             // OnDataReceived?.Invoke(receivedData);   // Raise the event
         }
         
-        void ProcessLine( string data ) {
-
+        void ProcessLine(string data) {
             if (data.StartsWith("YPR:"))
             {
                 // This already trims semicolons, but it's good to ensure it's applied to each value
@@ -79,15 +85,22 @@ namespace GXPEngine
             else if (data.StartsWith("BTN1:Pressed;"))
             {
                 // Handle button 1 press
-                Console.WriteLine("Button 1 Pressed");
+                Button1?.Invoke();
+                // Console.WriteLine("Button 1 Pressed");
             }
             else if (data.StartsWith("BTN2:Pressed;"))
             {
                 // Handle button 2 press
-                Console.WriteLine("Button 2 Pressed");
+                Button2?.Invoke();
+                // Console.WriteLine("Button 2 Pressed");
             }
         }
 
+        void Update()
+        {
+            
+        }
+        
         private void Do()
         {
             // Add the new pitch value to the queue, ensuring it only keeps the last 3 values

@@ -14,10 +14,10 @@ namespace GXPEngine
         private GUI gui;
         private Eggs eggs;
         private int orderPlayer;
-        public int choice; // possibly redundant
+        public int choice;
 
         // Controls
-        private bool ControlsEnabled;
+        private bool isMenu;
         private bool wasDownKeyPressed;
         private static bool player1Desided;
         private static bool player2Desided;
@@ -58,7 +58,6 @@ namespace GXPEngine
             this.orderPlayer = orderPlayer;
             this.choice = choice;
             score = 0;
-            ControlsEnabled = true;
             animationManager = new AnimationManager(gui);
             AddChild(animationManager);
             
@@ -86,12 +85,15 @@ namespace GXPEngine
 
         void Update()
         {
-            // animationManager.Update();
             gyroscope?.SerialPort_DataReceived();
 
-            if (ControlsEnabled)
+            if (isMenu)
             {
-                Controls();
+                MenuControls();
+            }
+            else
+            {
+                GameControls();
             }
 
             if (BothPlayersDecided())
@@ -101,7 +103,7 @@ namespace GXPEngine
             }
         }
 
-        private void Controls()
+        private void GameControls()
         {
             isGyroLeftActive = IsGyroLeftActionActive();
             isGyroUpActive = IsGyroUpActionActive();
@@ -286,6 +288,11 @@ namespace GXPEngine
             }
 
             wasDownKeyPressed = isDownKeyPressed;
+        }
+
+        private void MenuControls()
+        {
+            
         }
 
         private bool BothPlayersKeyDown()
