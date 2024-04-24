@@ -46,9 +46,9 @@ namespace GXPEngine
             AddChild(test);
 
             menuSprites = new List<Sprite>();
-            menuSprites.Add(new Sprite("endingScreen1Winner.png"));
-            menuSprites.Add(new Sprite("endingScreen2Winner.png"));
-            menuSprites.Add(new Sprite("endingScreenDraw.png"));
+            menuSprites.Add(new Sprite("Instructions1.png"));
+            menuSprites.Add(new Sprite("Instructions2.png"));
+            menuSprites.Add(new Sprite("Instructions3.png"));
 
             foreach (Sprite sprite in menuSprites)
             {
