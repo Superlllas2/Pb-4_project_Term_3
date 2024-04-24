@@ -96,6 +96,15 @@ namespace GXPEngine
             }
         }
 
+        public void ClosePort()
+        {
+            if (arduino != null && arduino.IsOpen)
+            {
+                arduino.Dispose();
+                arduino = null;
+            }
+        }
+        
         void Update()
         {
             

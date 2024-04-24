@@ -17,7 +17,6 @@ namespace GXPEngine
         public int choice;
 
         // Controls
-        private bool isMenu;
         private bool wasDownKeyPressed;
         private static bool player1Desided;
         private static bool player2Desided;
@@ -86,15 +85,8 @@ namespace GXPEngine
         void Update()
         {
             gyroscope?.SerialPort_DataReceived();
-
-            if (isMenu)
-            {
-                MenuControls();
-            }
-            else
-            {
-                GameControls();
-            }
+            
+            GameControls();
 
             if (BothPlayersDecided())
             {
@@ -289,12 +281,7 @@ namespace GXPEngine
 
             wasDownKeyPressed = isDownKeyPressed;
         }
-
-        private void MenuControls()
-        {
-            
-        }
-
+        
         private bool BothPlayersKeyDown()
         {
             return player1KeyDown && player2KeyDown;
@@ -315,6 +302,7 @@ namespace GXPEngine
             if (gyroscope?.roll < -25)
             {
                 // debug
+                Console.WriteLine($"{playerId} left");
             }
             return gyroscope?.roll < -25;
         }
@@ -324,6 +312,7 @@ namespace GXPEngine
             if (gyroscope?.roll > 25)
             {
                 // debug
+                Console.WriteLine($"{playerId} right");
             }
             return gyroscope?.roll > 25;
         }
@@ -333,6 +322,7 @@ namespace GXPEngine
             if (gyroscope?.pitch < -15)
             {
                 // debug
+                Console.WriteLine($"{playerId} up");
             }
             return gyroscope?.pitch < -15;
         }

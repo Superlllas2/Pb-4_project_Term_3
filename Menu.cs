@@ -17,14 +17,13 @@ namespace GXPEngine
         private bool isDraw;
 
         private Gyroscope p1;
-        private Gyroscope p2;
         
         // Menu
         private List<Sprite> menuSprites;
         private int currentPictureIndex;
         private bool buttonPressed;
-        private float timeSinceLastButtonPress = 0;
-        private float debounceDelay = 0.5f;
+        private float timeSinceLastButtonPress;
+        private float debounceDelay = 0.4f;
         private bool wasTopButtonPressed;
         private bool wasAnyButtonPressed;
 
@@ -46,12 +45,14 @@ namespace GXPEngine
             foreach (Sprite sprite in menuSprites)
             {
                 sprite.visible = false;
+                sprite.scale = 2f;
                 AddChild(sprite);
             }
 
-            p1 = new Gyroscope("/dev/cu.usbmodem21301", 57600);
+            p1 = new Gyroscope("/dev/cu.usbmodem21401", 57600);
             p1.Button1 += DoSomethingOnButton1;
             p1.Button2 += DoSomethingOnButton2;
+            AddChild(p1);
         }
 
         public Menu(bool isPlayer1, bool isDraw)
@@ -79,12 +80,10 @@ namespace GXPEngine
         {
             if (buttonPressed) {
                 timeSinceLastButtonPress += Time.deltaTime/1000f;
-                Console.WriteLine(timeSinceLastButtonPress);
 
-                // Reset button pressed flag after the debounce delay has passed and no new press has occurred
                 if (timeSinceLastButtonPress >= debounceDelay) {
                     buttonPressed = false;
-                    timeSinceLastButtonPress = 0; // Reset the timer after the action is allowed
+                    timeSinceLastButtonPress = 0;
                 }
             }
 
@@ -99,11 +98,21 @@ namespace GXPEngine
             p1.SerialPort_DataReceived();
         }
 
-        void PictureListing()
+        void PictureGoNext()
         {
+            currentPictureIndex++;
             if (currentPictureIndex < menuSprites.Count)
             {
                 menuSprites[currentPictureIndex].visible = true;
+            }
+        }
+
+        void PictureGoPrevious()
+        {
+            if (currentPictureIndex > 0)
+            {
+                menuSprites[currentPictureIndex].visible = false;
+                currentPictureIndex--;
             }
         }
 
@@ -121,10 +130,9 @@ namespace GXPEngine
                 }
                 else
                 {
-                    if (currentPictureIndex <= menuSprites.Count)
+                    if (currentPictureIndex < menuSprites.Count - 1)
                     {
-                        PictureListing();
-                        currentPictureIndex++;
+                        PictureGoNext();
                     }
                     else
                     {
@@ -145,11 +153,9 @@ namespace GXPEngine
                 
                 buttonPressed = true;
                 
-                if (currentPictureIndex >= 0)
+                if (currentPictureIndex > 0)
                 {
-                    menuSprites[currentPictureIndex].visible = false;
-                    PictureListing();
-                    currentPictureIndex--;
+                    PictureGoPrevious();
                 }
             }
         }
@@ -168,6 +174,9 @@ namespace GXPEngine
 
         private void RemoveAll()
         {
+            p1.Button1 -= DoSomethingOnButton1;
+            p1.Button2 -= DoSomethingOnButton2;
+            p1.ClosePort();
             List<GameObject> children = GetChildren();
             foreach (GameObject child in children)
             {
