@@ -237,6 +237,8 @@ namespace GXPEngine
             }
         }
 
+
+        public void DoSomething() {}
         private void Clean()
         {
             if (!isMenu2)

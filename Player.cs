@@ -49,8 +49,14 @@ namespace GXPEngine
 
         public Action<int> UpdateScoreCallback;
 
+        ~Player()
+        {
+            Console.WriteLine("Destroyed!");
+        }
+        
         public Player(int playerId, GUI gui, Eggs eggs, int orderPlayer, int choice, string port)
         {
+            counter++;
             this.eggs = eggs;
             this.gui = gui;
             this.playerId = playerId;
@@ -74,9 +80,12 @@ namespace GXPEngine
             // The callback to communicate with GUI
             UpdateScoreCallback = (result) => UpdateScore(result);
         }
+        
+        public static int counter = 0;
 
         void Update()
         {
+            Console.WriteLine("update id:" + counter);
             gyroscope?.SerialPort_DataReceived();
             
             GameControls();
@@ -138,6 +147,7 @@ namespace GXPEngine
                         }
                         else
                         {
+                            gui.currentEgg++;
                             Console.WriteLine("No more eggs left");
                         }
                     }
@@ -167,6 +177,7 @@ namespace GXPEngine
                     }
                     else
                     {
+                        gui.currentEgg++;
                         Console.WriteLine("No more eggs left");
                     }
                 }
@@ -190,6 +201,7 @@ namespace GXPEngine
                     }
                     else
                     {
+                        gui.currentEgg++;
                         Console.WriteLine("No more eggs left");
                     }
                 }
@@ -226,6 +238,7 @@ namespace GXPEngine
                         }
                         else
                         {
+                            gui.currentEgg++;
                             Console.WriteLine("No more eggs left");
                         }
                     }

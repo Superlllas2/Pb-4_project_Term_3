@@ -20,13 +20,13 @@ namespace GXPEngine
 	
         private Player player1;
         private Player player2;
-        private EasyDraw leftSide;
-        private EasyDraw rightSide;
         private HUD hud;
         private GUI gui;
         private Eggs eggs;
         private Sound gameSoundtrack;
         private SoundChannel gameSoundChannel;
+        
+        
         
         public Level()
         {
@@ -46,15 +46,16 @@ namespace GXPEngine
             
             gui = new GUI();
             AddChild(gui);
+            
             player1 = new Player(0, gui, eggs, 0,0, "/dev/cu.usbmodem21401");
             player2 = new Player(1, gui, eggs, 1,1, "/dev/cu.usbmodem21301");
             gui.SetScoreUpdateCallback(player1.choice, player1.UpdateScoreCallback);
             gui.SetScoreUpdateCallback(player2.choice, player2.UpdateScoreCallback);
             AddChild(player1);
             AddChild(player2);
-    
-            hud = new HUD(player1, player2, eggs.GetNumOnes());
-            AddChild(hud);
+            
+            // hud = new HUD(player1, player2, eggs.GetNumOnes());
+            // AddChild(hud);
             
             // --TEST PURPOSES--
             // test4 = new Canvas("Eggbox/eggbox1.png", false);
@@ -87,21 +88,28 @@ namespace GXPEngine
             fire.Animate(10 * Time.deltaTime / 1000f);
 
             // TODO: preferably clean this
-            if (gui.currentEgg == 12)
+            if (gui.currentEgg == 5)
             {
+                gui.currentEgg++;
+                Console.WriteLine("aa");
                 var menu = new Menu(player1.GetScore(), player2.GetScore());
                 Clean();
+               // (parent as Menu).DoSomething();
                 AddChild(menu);
             }
         }
         
         private void Clean()
         {
+            
             List<GameObject> children = GetChildren();
             foreach (GameObject child in children)
             {
                 child.Destroy();
             }
+            
+            
+            GC.Collect();
         }
     }
 }

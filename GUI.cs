@@ -13,6 +13,8 @@ namespace GXPEngine
         private Sprite resultBadSprite1;
         private Sprite resultBadSprite2;
         
+        //
+        
         // Static sprites
         public Sprite rightEgg;
         public Sprite leftEgg;
