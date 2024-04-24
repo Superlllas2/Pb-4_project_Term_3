@@ -25,12 +25,38 @@ namespace GXPEngine
         private Eggs eggs;
         private Sound gameSoundtrack;
         private SoundChannel gameSoundChannel;
-        
-        
+
+        private List<Sprite> health1;
+        private List<Sprite> health2;
         
         public Level()
         {
-            Console.WriteLine("Welcome to the game!");
+            health1 = new List<Sprite>();
+            health1.Add(new Sprite("Health/health_0.png"));
+            health1.Add(new Sprite("Health/health_1.png"));
+            health1.Add(new Sprite("Health/health_2.png"));
+            health1.Add(new Sprite("Health/health_3.png"));
+            health1.Add(new Sprite("Health/health_4.png"));
+            health1.Add(new Sprite("Health/health_5.png"));
+            health1.Add(new Sprite("Health/health_6.png"));
+            health1.Add(new Sprite("Health/health_7.png"));
+            health1.Add(new Sprite("Health/health_8.png"));
+            health1.Add(new Sprite("Health/health_9.png"));
+            health1.Add(new Sprite("Health/health_10.png"));
+            
+            health2 = new List<Sprite>();
+            health2.Add(new Sprite("Health/health_0.png"));
+            health2.Add(new Sprite("Health/health_1.png"));
+            health2.Add(new Sprite("Health/health_2.png"));
+            health2.Add(new Sprite("Health/health_3.png"));
+            health2.Add(new Sprite("Health/health_4.png"));
+            health2.Add(new Sprite("Health/health_5.png"));
+            health2.Add(new Sprite("Health/health_6.png"));
+            health2.Add(new Sprite("Health/health_7.png"));
+            health2.Add(new Sprite("Health/health_8.png"));
+            health2.Add(new Sprite("Health/health_9.png"));
+            health2.Add(new Sprite("Health/health_10.png"));
+            
             gameSoundtrack = new Sound("Music/game.wav");
             gameSoundChannel = gameSoundtrack.Play();
             
@@ -54,9 +80,28 @@ namespace GXPEngine
             AddChild(player1);
             AddChild(player2);
             
-            // hud = new HUD(player1, player2, eggs.GetNumOnes());
-            // AddChild(hud);
+            foreach (Sprite sprite in health1)
+            {
+                sprite.visible = false;
+                sprite.scale = 2f;
+                sprite.SetXY(-540, -220);
+                AddChild(sprite);
+            }
             
+            foreach (Sprite sprite in health2)
+            {
+                sprite.visible = false;
+                sprite.scale = 2f;
+                sprite.SetXY(550, -220);
+                AddChild(sprite);
+            }
+
+            health1[5].visible = true;
+            health2[5].visible = true;
+
+            hud = new HUD(player1, player2, eggs.GetNumOnes());
+            AddChild(hud);
+
             // --TEST PURPOSES--
             // test4 = new Canvas("Eggbox/eggbox1.png", false);
             // test4.scale = 2f;
@@ -72,9 +117,9 @@ namespace GXPEngine
             // test2.scale = 2f;
             // test3 = new Canvas("test3.png", false);
             // AddChild(test3);
-            
+
             // -----------------
-    
+
             // -- TO SEE WHAT ARE THE EGGS --
             // foreach (int i in eggs)
             // {
@@ -87,16 +132,18 @@ namespace GXPEngine
         {
             fire.Animate(10 * Time.deltaTime / 1000f);
 
-            // TODO: preferably clean this
+            // TODO: increase the number below for a gameplay
             if (gui.currentEgg == 5)
             {
                 gui.currentEgg++;
                 Console.WriteLine("aa");
                 var menu = new Menu(player1.GetScore(), player2.GetScore());
                 Clean();
-               // (parent as Menu).DoSomething();
+                // (parent as Menu).DoSomething();
                 AddChild(menu);
             }
+            
+            
         }
         
         private void Clean()

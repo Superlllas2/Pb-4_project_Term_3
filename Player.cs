@@ -85,7 +85,6 @@ namespace GXPEngine
 
         void Update()
         {
-            Console.WriteLine("update id:" + counter);
             gyroscope?.SerialPort_DataReceived();
             
             GameControls();

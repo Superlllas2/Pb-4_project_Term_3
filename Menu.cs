@@ -156,7 +156,6 @@ namespace GXPEngine
 
         void DoSomethingOnButton1()
         {
-            Console.WriteLine("hello b1");
             if (!buttonPressed)
             {
                 wasAnyButtonPressed = true;
@@ -190,7 +189,6 @@ namespace GXPEngine
 
         void DoSomethingOnButton2()
         {
-            Console.WriteLine("hello b2");
             if (!buttonPressed)
             {
                 if (!isMenu2)
@@ -228,7 +226,6 @@ namespace GXPEngine
                 }
                 else
                 {
-                    Console.WriteLine("we get to StartGame else");
                     Clean();
                     Level level = new Level();
                     AddChild(level);
@@ -254,7 +251,6 @@ namespace GXPEngine
             }
             else
             {
-                Console.WriteLine("we get to Clean");
                 p2.Button1 -= DoSomethingOnButton1;
                 p2.Button2 -= DoSomethingOnButton2;
                 List<GameObject> children = GetChildren();
