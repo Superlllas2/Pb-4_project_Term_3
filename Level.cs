@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace GXPEngine
 {
                 
@@ -27,6 +30,7 @@ namespace GXPEngine
         
         public Level()
         {
+            Console.WriteLine("Welcome to the game!");
             gameSoundtrack = new Sound("Music/game.wav");
             gameSoundChannel = gameSoundtrack.Play();
             
@@ -81,6 +85,23 @@ namespace GXPEngine
         void Update()
         {
             fire.Animate(10 * Time.deltaTime / 1000f);
+
+            // TODO: preferably clean this
+            if (gui.currentEgg == 12)
+            {
+                var menu = new Menu(player1.GetScore(), player2.GetScore());
+                Clean();
+                AddChild(menu);
+            }
+        }
+        
+        private void Clean()
+        {
+            List<GameObject> children = GetChildren();
+            foreach (GameObject child in children)
+            {
+                child.Destroy();
+            }
         }
     }
 }

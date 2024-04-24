@@ -64,6 +64,7 @@ namespace GXPEngine
             try
             {
                 gyroscope = new Gyroscope(port, 57600);
+                // AddChild(gyroscope);
             }
             catch
             {
@@ -137,7 +138,7 @@ namespace GXPEngine
                         }
                         else
                         {
-                            Console.WriteLine("works");
+                            Console.WriteLine("No more eggs left");
                         }
                     }
                 }
@@ -166,7 +167,7 @@ namespace GXPEngine
                     }
                     else
                     {
-                        Console.WriteLine("works");
+                        Console.WriteLine("No more eggs left");
                     }
                 }
                 else if (playerId == 1 && !player2Desided)
@@ -189,7 +190,7 @@ namespace GXPEngine
                     }
                     else
                     {
-                        Console.WriteLine("works");
+                        Console.WriteLine("No more eggs left");
                     }
                 }
             }
@@ -225,7 +226,7 @@ namespace GXPEngine
                         }
                         else
                         {
-                            Console.WriteLine("works");
+                            Console.WriteLine("No more eggs left");
                         }
                     }
                     else if (playerId == 1)

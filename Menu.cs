@@ -17,9 +17,10 @@ namespace GXPEngine
         private bool isDraw;
 
         private Gyroscope p1;
+        private Gyroscope p2;
         private bool isPlaying;
-        
-        // Menu
+
+        // Menu 1
         private List<Sprite> menuSprites;
         private int currentPictureIndex;
         private bool buttonPressed;
@@ -27,6 +28,12 @@ namespace GXPEngine
         private float debounceDelay = 0.4f;
         private bool wasTopButtonPressed;
         private bool wasAnyButtonPressed;
+
+        // Menu 2
+        private Sprite win1;
+        private Sprite win2;
+        private Sprite draw;
+        private bool isMenu2;
 
         public Menu()
         {
@@ -42,7 +49,7 @@ namespace GXPEngine
             menuSprites.Add(new Sprite("endingScreen1Winner.png"));
             menuSprites.Add(new Sprite("endingScreen2Winner.png"));
             menuSprites.Add(new Sprite("endingScreenDraw.png"));
-            
+
             foreach (Sprite sprite in menuSprites)
             {
                 sprite.visible = false;
@@ -56,35 +63,49 @@ namespace GXPEngine
             AddChild(p1);
 
             isPlaying = true;
+            isMenu2 = false;
         }
 
-        public Menu(bool isPlayer1, bool isDraw)
+        public Menu(int scoreP1, int scoreP2)
         {
-            this.isPlayer1 = isPlayer1;
-            this.isDraw = isDraw;
-            if (isDraw)
+            buttonPressed = false;
+            isPlaying = true;
+            isMenu2 = true;
+            hasStarted = false;
+
+            p2 = new Gyroscope("/dev/cu.usbmodem21301", 57600);
+            p2.Button1 += DoSomethingOnButton1;
+            p2.Button2 += DoSomethingOnButton2;
+            AddChild(p2);
+
+            if (scoreP1 == scoreP2)
             {
-                
+                draw = new Sprite("endingScreenDraw.png");
+                draw.scale = 2f;
+                AddChild(draw);
+            }
+            else if (scoreP1 > scoreP2)
+            {
+                win1 = new Sprite("endingScreen1Winner.png");
+                win1.scale = 2f;
+                AddChild(win1);
             }
             else
             {
-                if (isPlayer1)
-                {
-                    // code for player 1
-                }
-                else
-                {
-                    // code for player 2
-                }
+                win2 = new Sprite("endingScreen2Winner.png");
+                win2.scale = 2f;
+                AddChild(win2);
             }
         }
 
         void Update()
         {
-            if (buttonPressed) {
-                timeSinceLastButtonPress += Time.deltaTime/1000f;
+            if (buttonPressed)
+            {
+                timeSinceLastButtonPress += Time.deltaTime / 1000f;
 
-                if (timeSinceLastButtonPress >= debounceDelay) {
+                if (timeSinceLastButtonPress >= debounceDelay)
+                {
                     buttonPressed = false;
                     timeSinceLastButtonPress = 0;
                 }
@@ -94,13 +115,24 @@ namespace GXPEngine
             {
                 buttonPressed = false;
             }
-            
-            test.SetCycle(0, 8, 3);
-            test.AnimateFixed();
+
+            if (!isMenu2)
+            {
+                test.SetCycle(0, 8, 3);
+                test.AnimateFixed();
+            }
+
 
             if (isPlaying)
             {
-                p1.SerialPort_DataReceived();
+                if (!isMenu2)
+                {
+                    p1.SerialPort_DataReceived();
+                }
+                else
+                {
+                    p2.SerialPort_DataReceived();
+                }
             }
         }
 
@@ -124,44 +156,60 @@ namespace GXPEngine
 
         void DoSomethingOnButton1()
         {
+            Console.WriteLine("hello b1");
             if (!buttonPressed)
             {
                 wasAnyButtonPressed = true;
                 buttonPressed = true;
-                if (!wasTopButtonPressed)
+                if (!isMenu2)
                 {
-                    test.LateDestroy();
-                    menuSprites[0].visible = true;
-                    wasTopButtonPressed = true;
-                }
-                else
-                {
-                    if (currentPictureIndex < menuSprites.Count - 1)
+                    if (!wasTopButtonPressed)
                     {
-                        PictureGoNext();
+                        test.LateDestroy();
+                        menuSprites[0].visible = true;
+                        wasTopButtonPressed = true;
                     }
                     else
                     {
-                        StartGame();
+                        if (currentPictureIndex < menuSprites.Count - 1)
+                        {
+                            PictureGoNext();
+                        }
+                        else
+                        {
+                            StartGame();
+                        }
                     }
+                }
+                else
+                {
+                    StartGame();
                 }
             }
         }
 
         void DoSomethingOnButton2()
         {
+            Console.WriteLine("hello b2");
             if (!buttonPressed)
             {
-                if (!wasAnyButtonPressed)
+                if (!isMenu2)
                 {
-                    Game.main.LateDestroy();
+                    buttonPressed = true;
+                
+                    if (!wasAnyButtonPressed)
+                    {
+                        Game.main.LateDestroy();
+                    }
+
+                    if (currentPictureIndex > 0)
+                    {
+                        PictureGoPrevious();
+                    }
                 }
-                
-                buttonPressed = true;
-                
-                if (currentPictureIndex > 0)
+                else
                 {
-                    PictureGoPrevious();
+                    StartGame();
                 }
             }
         }
@@ -170,23 +218,49 @@ namespace GXPEngine
         {
             if (hasStarted == false)
             {
-                RemoveAll();
-                soundChannel.Stop();
-                Level level = new Level();
-                AddChild(level);
-                hasStarted = true;
+                if (!isMenu2)
+                {
+                    Clean();
+                    soundChannel.Stop();
+                    Level level = new Level();
+                    AddChild(level);
+                    hasStarted = true;
+                }
+                else
+                {
+                    Console.WriteLine("we get to StartGame else");
+                    Clean();
+                    Level level = new Level();
+                    AddChild(level);
+                    hasStarted = true;
+                }
             }
         }
 
-        private void RemoveAll()
+        private void Clean()
         {
-            p1.Button1 -= DoSomethingOnButton1;
-            p1.Button2 -= DoSomethingOnButton2;
-            List<GameObject> children = GetChildren();
-            isPlaying = false;
-            foreach (GameObject child in children)
+            if (!isMenu2)
             {
-                child.Destroy();
+                p1.Button1 -= DoSomethingOnButton1;
+                p1.Button2 -= DoSomethingOnButton2;
+                List<GameObject> children = GetChildren();
+                isPlaying = false;
+                foreach (GameObject child in children)
+                {
+                    child.Destroy();
+                }
+            }
+            else
+            {
+                Console.WriteLine("we get to Clean");
+                p2.Button1 -= DoSomethingOnButton1;
+                p2.Button2 -= DoSomethingOnButton2;
+                List<GameObject> children = GetChildren();
+                isPlaying = false;
+                foreach (GameObject child in children)
+                {
+                    child.Destroy();
+                }
             }
         }
     }
