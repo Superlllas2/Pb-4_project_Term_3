@@ -56,13 +56,12 @@ namespace GXPEngine
         
         public Player(int playerId, GUI gui, Eggs eggs, int orderPlayer, int choice, string port)
         {
-            counter++;
             this.eggs = eggs;
             this.gui = gui;
             this.playerId = playerId;
             this.orderPlayer = orderPlayer;
             this.choice = choice;
-            score = 0;
+            score = 5;
             animationManager = new AnimationManager(gui);
             AddChild(animationManager);
             
@@ -81,8 +80,6 @@ namespace GXPEngine
             UpdateScoreCallback = (result) => UpdateScore(result);
         }
         
-        public static int counter = 0;
-
         void Update()
         {
             gyroscope?.SerialPort_DataReceived();
@@ -317,7 +314,7 @@ namespace GXPEngine
 
         private void UpdateScore(int result)
         {
-            score += (result == 0) ? 10 : -10;
+            score += (result == 0) ? 1 : -1;
         }
 
         public int GetScore()
@@ -356,7 +353,7 @@ namespace GXPEngine
         {
             // Egg = 0 is good | Egg = 1 is bad
             Console.WriteLine($"Changing score for Player {playerId}. Result: {i}");
-            score += (i == 0) ? 10 : -10;
+            score += (i == 0) ? 1 : -1;
         }
 
         private bool BothPlayersDecided()
