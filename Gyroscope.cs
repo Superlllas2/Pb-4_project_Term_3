@@ -51,13 +51,7 @@ namespace GXPEngine
 
         public void SerialPort_DataReceived()
         {
-            // while ( arduino.BytesToRead > 1 )
-            // {
-            //     ProcessLine( arduino.ReadLine() );
-            // }
             ProcessLine(arduino?.ReadLine());
-
-            // OnDataReceived?.Invoke(receivedData);   // Raise the event
         }
         
         void ProcessLine(string data) {

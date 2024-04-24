@@ -17,6 +17,7 @@ namespace GXPEngine
         private bool isDraw;
 
         private Gyroscope p1;
+        private bool isPlaying;
         
         // Menu
         private List<Sprite> menuSprites;
@@ -53,6 +54,8 @@ namespace GXPEngine
             p1.Button1 += DoSomethingOnButton1;
             p1.Button2 += DoSomethingOnButton2;
             AddChild(p1);
+
+            isPlaying = true;
         }
 
         public Menu(bool isPlayer1, bool isDraw)
@@ -95,7 +98,10 @@ namespace GXPEngine
             test.SetCycle(0, 8, 3);
             test.AnimateFixed();
 
-            p1.SerialPort_DataReceived();
+            if (isPlaying)
+            {
+                p1.SerialPort_DataReceived();
+            }
         }
 
         void PictureGoNext()
@@ -176,8 +182,8 @@ namespace GXPEngine
         {
             p1.Button1 -= DoSomethingOnButton1;
             p1.Button2 -= DoSomethingOnButton2;
-            p1.ClosePort();
             List<GameObject> children = GetChildren();
+            isPlaying = false;
             foreach (GameObject child in children)
             {
                 child.Destroy();

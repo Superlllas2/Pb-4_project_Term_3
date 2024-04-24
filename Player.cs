@@ -69,15 +69,7 @@ namespace GXPEngine
             {
                 Console.WriteLine($"Exception: player {playerId} controller is not connected or the port is wrong");
             }
-
-            // The callback to communicate data received from the controller.
-            // As Update method is not fast enough to receive,
-            // I need to get results as soon as there it something to read
-            // if (gyroscope != null)
-            // {
-            //     // gyroscope.OnDataReceived += HandleGyroData;
-            // }
-
+            
             // The callback to communicate with GUI
             UpdateScoreCallback = (result) => UpdateScore(result);
         }
@@ -126,20 +118,27 @@ namespace GXPEngine
                     }
                     else if (playerId == 1 && !player2Desided)
                     {
-                        gui.ChangeOtherPlayerScore(0, eggs.GetResult(orderPlayer));
-                        if (eggs.GetResult(orderPlayer) == 0)
+                        if (gui.currentEgg != 12)
                         {
-                            animationManager.StartAnimation("Player2OtherGood");
+                            gui.ChangeOtherPlayerScore(0, eggs.GetResult(orderPlayer));
+                            if (eggs.GetResult(orderPlayer) == 0)
+                            {
+                                animationManager.StartAnimation("Player2OtherGood");
+                            }
+                            else
+                            {
+                                animationManager.StartAnimation("Player2Other");
+                            }
+
+                            player2Desided = true;
+                            gui.eggArray[1 + gui.currentEgg++].visible = true;
+                            // gui.eggArray[gui.currentEgg].visible = false;
+                            orderPlayer += 2;
                         }
                         else
                         {
-                            animationManager.StartAnimation("Player2Other");
+                            Console.WriteLine("works");
                         }
-
-                        player2Desided = true;
-                        gui.eggArray[gui.currentEgg].visible = false;
-                        gui.eggArray[gui.currentEgg++].visible = true;
-                        orderPlayer += 2;
                     }
                 }
             }
@@ -149,45 +148,55 @@ namespace GXPEngine
             {
                 if (playerId == 0 && !player1Desided)
                 {
-                    player1Desided = true;
-                    ChangeScore(eggs.GetResult(orderPlayer));
-                    gui.eggArray[gui.currentEgg++].visible = true;
-                    gui.eggArray[gui.currentEgg].visible = false;
-                    if (eggs.GetResult(orderPlayer) == 0)
+                    if (gui.currentEgg != 12)
                     {
-                        animationManager.StartAnimation("Player1HimselfGood");
+                        player1Desided = true;
+                        ChangeScore(eggs.GetResult(orderPlayer));
+                        gui.eggArray[1 + gui.currentEgg++].visible = true;
+                        // gui.eggArray[gui.currentEgg].visible = false;
+                        if (eggs.GetResult(orderPlayer) == 0)
+                        {
+                            animationManager.StartAnimation("Player1HimselfGood");
+                        }
+                        else
+                        {
+                            animationManager.StartAnimation("Player1Himself");
+                        }
+                        orderPlayer += 2; 
                     }
                     else
                     {
-                        animationManager.StartAnimation("Player1Himself");
+                        Console.WriteLine("works");
                     }
-
-                    orderPlayer += 2;
                 }
                 else if (playerId == 1 && !player2Desided)
                 {
-                    ChangeScore(eggs.GetResult(orderPlayer));
-                    player2Desided = true;
-                    gui.eggArray[gui.currentEgg++].visible = true;
-                    gui.eggArray[gui.currentEgg].visible = false;
-                    if (eggs.GetResult(orderPlayer) == 0)
+                    if (gui.currentEgg != 12)
                     {
-                        animationManager.StartAnimation("Player2HimselfGood");
+                        ChangeScore(eggs.GetResult(orderPlayer));
+                        player2Desided = true;
+                        gui.eggArray[1 + gui.currentEgg++].visible = true;
+                        // gui.eggArray[gui.currentEgg].visible = false;
+                        if (eggs.GetResult(orderPlayer) == 0)
+                        {
+                            animationManager.StartAnimation("Player2HimselfGood");
+                        }
+                        else
+                        {
+                            animationManager.StartAnimation("Player2Himself");
+                        }
+                        orderPlayer += 2;   
                     }
                     else
                     {
-                        animationManager.StartAnimation("Player2Himself");
+                        Console.WriteLine("works");
                     }
-
-                    orderPlayer += 2;
                 }
             }
 
             // wasLeftKeyPressed = Input.GetKey(leftKey);
 
             // ------ Right ------
-            // TODO: playerDecided doesnt correctly work here
-            // TODO: animation of a bad and good outcomes are reversed
             if ((isGyroRightActive && !wasGyroRightActionActive) || Input.GetKey(rightKey))
             {
                 if (!BothPlayersKeyDown())
@@ -197,21 +206,27 @@ namespace GXPEngine
                     choice = 1;
                     if (playerId == 0 && !player1Desided)
                     {
-                        player1Desided = true;
-                        gui.ChangeOtherPlayerScore(1, eggs.GetResult(orderPlayer));
-                        gui.eggArray[gui.currentEgg++].visible = true;
-                        gui.eggArray[gui.currentEgg].visible = false;
-                        
-                        if (eggs.GetResult(orderPlayer) == 0)
+                        if (gui.currentEgg != 12)
                         {
-                            Console.WriteLine("We get here");
-                            animationManager.StartAnimation("Player1OtherGood");
+                            player1Desided = true;
+                            gui.ChangeOtherPlayerScore(1, eggs.GetResult(orderPlayer));
+                            gui.eggArray[1 + gui.currentEgg++].visible = true;
+                            // gui.eggArray[gui.currentEgg].visible = false;
+                        
+                            if (eggs.GetResult(orderPlayer) == 0)
+                            {
+                                animationManager.StartAnimation("Player1OtherGood");
+                            }
+                            else
+                            {
+                                animationManager.StartAnimation("Player1Other");
+                            }
+                            orderPlayer += 2;
                         }
                         else
                         {
-                            animationManager.StartAnimation("Player1Other");
+                            Console.WriteLine("works");
                         }
-                        orderPlayer += 2;
                     }
                     else if (playerId == 1)
                     {
@@ -302,7 +317,6 @@ namespace GXPEngine
             if (gyroscope?.roll < -25)
             {
                 // debug
-                Console.WriteLine($"{playerId} left");
             }
             return gyroscope?.roll < -25;
         }
@@ -312,7 +326,6 @@ namespace GXPEngine
             if (gyroscope?.roll > 25)
             {
                 // debug
-                Console.WriteLine($"{playerId} right");
             }
             return gyroscope?.roll > 25;
         }
@@ -322,7 +335,6 @@ namespace GXPEngine
             if (gyroscope?.pitch < -15)
             {
                 // debug
-                Console.WriteLine($"{playerId} up");
             }
             return gyroscope?.pitch < -15;
         }
